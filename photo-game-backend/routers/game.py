@@ -4,7 +4,8 @@ from game_state_machine import games
 from typing import List
 
 router = APIRouter(
-    prefix="/game/"
+    prefix="/game",
+    tags=["game"]
 )
 
 class ImageContent:
@@ -53,7 +54,7 @@ mock_game_dictionary = {
 
 @router.post("/")
 def create_game():
-    return mock_game_dictionary.keys()[0]
+    return list(mock_game_dictionary.keys())[0]
 
 @router.get("/{game_id}")
 def get_all_game_data(game_id: str):
