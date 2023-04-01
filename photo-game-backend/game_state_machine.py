@@ -34,9 +34,9 @@ mock_round_prompts = [
 ]
 mock_round_images = [
     'im-advjlgjlesa',
-    'im-adv1jgjlesa',
-    'im-adv4lgllesa',
-    'im-advjlgalesa'
+    'im-ajsofeaokae',
+    'im-ajsofesadae',
+    'im-ajsofesaade'
 ]
 
 mock_prompt_dictionary = {
