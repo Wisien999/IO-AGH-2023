@@ -33,6 +33,7 @@ class UserAction(BaseModel):
 
 class MatchResult(BaseModel):
     is_correct: dict[str, dict[str, bool]]
+    current_points: float
 
 
 @router.post("/{game_id}/{round_id}/match")
@@ -46,5 +47,6 @@ async def user_action(game_id: str, round_id: str, user_action: UserAction):
         game_round.image_to_prompt[image_id] = prompt
 
     return MatchResult(
-        is_correct=game_round.correction_map()
+        is_correct=game_round.correction_map(),
+        current_points=game_round.points()
     )
