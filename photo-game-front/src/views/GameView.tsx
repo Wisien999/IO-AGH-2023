@@ -6,7 +6,7 @@ import {useQuery} from "@tanstack/react-query";
 import {fetchApi} from "../utils/fetchApi";
 import {DragDropContext} from "react-beautiful-dnd";
 import LoadingScreen from "../utils/LoadingScreen";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import { parseISO } from 'date-fns';
 import eventEmitters from "../eventEmitters";
 import {ImageMatchEvent, ImageMatchEventParams} from "../eventEmitters/events/ImageMatchEvent";
@@ -18,11 +18,16 @@ export default function GameView() {
     const [prompts, setPrompts] = React.useState<Record<string, string>>({});
     const [endTime, setEndTime] = React.useState<Date>(new Date());
     const [startTime, setStartTime] = React.useState<Date>(new Date());
+    const [currentPoints, setCurrentPoints] = React.useState<number>(0);
+    const navigate = useNavigate();
 
 
 
     const sendPromptMatch = async (image: string, prompt: string) => {
-        const result = await fetchApi(`/game/${gameId}/0/match`, {
+        const result: {
+            current_points: 0;
+            is_correct: Record<string, boolean>;
+        } = await fetchApi(`/game/${gameId}/0/match`, {
             method: 'POST',
             body: JSON.stringify({
                 actions: {
@@ -31,20 +36,14 @@ export default function GameView() {
             })
         });
 
-        console.log(result)
+        setCurrentPoints(result.current_points);
 
-        if (true) {
-            eventEmitters.emit(ImageMatchEvent, {
-                title: prompt,
-                imageId: image,
-                state: 'success',
-            } as ImageMatchEventParams)
-        } else {
-            eventEmitters.emit(ImageMatchEvent, {
-                title: prompt,
-                imageId: image,
-                state: 'error',
-            } as ImageMatchEventParams)
+        if (Object.keys(prompts).length === 0) {
+            navigate('/gameover', {
+                state: {
+                    points: currentPoints,
+                }
+            });
         }
 
         console.log(result);
