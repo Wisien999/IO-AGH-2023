@@ -17,7 +17,7 @@ export default function Image({
     React.useEffect(() => {
         let timeout: any;
         eventEmitters.on(ImageMatchEvent, (params: ImageMatchEventParams) => {
-            if (params.imageId !== item) {
+            if (params.imageId && params.imageId !== item) {
                 return;
             }
             if (params.title) {
@@ -27,6 +27,8 @@ export default function Image({
                 setColor('green');
             } else if (params.state === 'error') {
                 setColor('red');
+            } else if (params.state === 'info') {
+                setColor('blue');
             }
             timeout = setTimeout(() => {
                 setColor(undefined);

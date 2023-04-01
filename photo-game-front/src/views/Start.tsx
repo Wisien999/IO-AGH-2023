@@ -10,7 +10,7 @@ function Start() {
     const [nick, setNick] = useState('');
     const [gameName, setGameName] = useState('');
 
-    const handleClick = (event: { preventDefault: () => void; })  => {
+    const handleClick = (event: { preventDefault: () => void; }) => {
         event.preventDefault();
 
         // TODO set nickname using context
@@ -19,7 +19,7 @@ function Start() {
         fetchApi('/').then(response => setGameName(response));
 
         navigate("/game/" + gameName);
-      };
+    };
 
     return (
         <Grid container justifyContent={"center"}>
@@ -33,11 +33,21 @@ function Start() {
                     </Grid>
                 </Grid>
                 <Grid item xs={12}>
-                    <TextField onChange={(e) => {setNick(e.target.value)}} value={nick} variant={"outlined"}></TextField>
+                    <TextField
+                        onChange={(e) => {
+                            setNick(e.target.value)
+                        }}
+                        value={nick}
+                        variant={"outlined"}
+                    />
                 </Grid>
                 <Grid item xs={12} alignSelf={"stretch"}>
-                    <Button onClick={(event) => {handleClick(event)}} variant={"contained"}
-                    fullWidth={true}>Start the game</Button>
+                    <Button
+                        onClick={(event) => {
+                            handleClick(event)
+                        }}
+                        variant={"contained"}
+                        fullWidth>Start the game</Button>
                 </Grid>
             </FormControl>
         </Grid>

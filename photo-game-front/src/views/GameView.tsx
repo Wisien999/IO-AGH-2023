@@ -34,11 +34,7 @@ export default function GameView() {
         console.log(result)
 
         if (true) {
-            eventEmitters.emit(ImageMatchEvent, {
-                title: prompt,
-                imageId: image,
-                state: 'success',
-            } as ImageMatchEventParams)
+
         } else {
             eventEmitters.emit(ImageMatchEvent, {
                 title: prompt,
@@ -90,9 +86,18 @@ export default function GameView() {
                     const prompt = destination?.droppableId.replace('prompt-', '');
 
                     if (prompt) {
-                        // send to backend
+                        eventEmitters.emit(ImageMatchEvent, {
+                            title: prompt,
+                            imageId: image,
+                            state: 'info',
+                        } as ImageMatchEventParams);
+                        setPrompts((prev) => {
+                            delete prev[prompt];
+                            return {
+                                ...prev,
+                            }
+                        })
                         sendPromptMatch(image, prompt);
-                        console.log(image, prompt)
                     }
                 }
             }>

@@ -13,10 +13,13 @@ export const removeAuthToken = () => {
     headers.delete('Authorization');
 }
 
-export const fetchApi = async (url: string, options: RequestInit = {}) => {
+export const fetchApi = async (url: string, options: RequestInit & { ignoreJSON?: boolean } = {}) => {
     const response = await fetch(`${API_URL}${url}`, {
         headers,
         ...options
     });
+    if (options?.ignoreJSON) {
+        return response;
+    }
     return response.json();
 }
