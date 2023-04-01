@@ -2,8 +2,8 @@ from fastapi import HTTPException
 
 
 class GameState:
-    def __init__(self):
-        self.rounds: dict[str, Round] = {'0': Round()}
+    def __init__(self, rounds):
+        self.rounds: dict[str, Round] = rounds
 
 
 class Round:
@@ -23,7 +23,30 @@ class Round:
         return sum([sum(x) for x in self.correction_map().values()]) / len(self.all_prompts)
 
 
-games: dict[str, GameState] = dict()
+mock_round = Round()
+mock_round_prompts = [
+    'pr-PROMPT1',
+    'pr-PROMPT2',
+    'pr-PROMPT3',
+    'pr-PROMPT4'
+]
+mock_round_images = [
+    'im-advjlgjlesa',
+    'im-adv1jgjlesa',
+    'im-adv4lgllesa',
+    'im-advjlgalesa'
+]
+mock_round.solution = {p: i for p, i in zip(mock_round_prompts, mock_round_images)}
+mock_round.all_prompts = mock_round_prompts
+mock_round.all_images = mock_round_images
+
+games: dict[str, GameState] = {
+    'gm-GAMEID2137': GameState(
+        rounds={
+            '0': mock_round
+        }
+    )
+}
 
 
 def get_points(game_id: str, round_id: str) -> int:
