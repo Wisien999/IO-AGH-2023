@@ -6,9 +6,13 @@ import {fetchApi} from "../utils/fetchApi";
 function Start() {
     const navigate = useNavigate();
 
-    const [nick, setNick] = useState('')
+    const [nick, setNick] = useState('');
+    const [gameName, setGameName] = useState('');
+
     const handleClick = (event: { preventDefault: () => void; })  => {
         event.preventDefault();
+
+        fetchApi('/').then(response => setGameName(response));
 
         navigate('/game');
       };
