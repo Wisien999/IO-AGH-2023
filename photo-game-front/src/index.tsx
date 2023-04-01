@@ -13,8 +13,15 @@ import '@fontsource/roboto/700.css';
 import GameView from "./views/GameView";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import SettingsView from "./views/SettingsView";
+import GameOverScreen from "./views/GameOverScreen";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    }
+  }
+});
 
 const router = createBrowserRouter([
   {
@@ -38,6 +45,10 @@ const router = createBrowserRouter([
       {
         path: 'game/:gameId',
         element: <GameView />,
+      },
+      {
+        path: 'gameover',
+        element: <GameOverScreen />
       }
     ],
   },
