@@ -75,7 +75,7 @@ class UserAction(BaseModel):
     actions: dict[str, str]  # prompt id -> image id
 
 class MatchResult(BaseModel):
-
+    pass
 
 
 @router.post("/{game_id}/{round_id}/match")
