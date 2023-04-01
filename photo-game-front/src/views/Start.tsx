@@ -1,24 +1,26 @@
-import {useNavigate} from "react-router-dom";
+import {Outlet, useNavigate} from "react-router-dom";
 import {Button, FormControl, FormLabel, Grid, IconButton, TextField} from "@mui/material";
-import {useState} from "react";
+import {useState, useContext} from "react";
 import {fetchApi} from "../utils/fetchApi";
+import {useNickname} from '../contexts/NicknameContext'
 import SettingsIcon from '@mui/icons-material/Settings';
 
 function Start() {
     const navigate = useNavigate();
 
     const [nick, setNick] = useState('');
-    const [gameName, setGameName] = useState('');
+    const { setNickname } = useNickname();
 
-    const handleClick = (event: { preventDefault: () => void; })  => {
+    const handleClick = async (event: { preventDefault: () => void; })  => {
         event.preventDefault();
 
-        // TODO set nickname using context
+        // nickname
+        setNickname(nick);
 
         // get game id
-        fetchApi('/').then(response => setGameName(response));
+        const r = await fetchApi('/', {ignoreJSON: true} as any);
 
-        navigate("/game/" + gameName);
+        navigate("/game/" + r);
       };
 
     return (
@@ -29,7 +31,9 @@ function Start() {
                         <FormLabel>Enter your nickname:</FormLabel>
                     </Grid>
                     <Grid item xs={6}>
-                        <IconButton>SettingsIcon</IconButton>
+                        <IconButton>
+                            <SettingsIcon/>
+                        </IconButton>
                     </Grid>
                 </Grid>
                 <Grid item xs={12}>
@@ -40,6 +44,7 @@ function Start() {
                     fullWidth={true}>Start the game</Button>
                 </Grid>
             </FormControl>
+            <Outlet/>
         </Grid>
     )
 }

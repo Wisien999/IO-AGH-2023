@@ -1,5 +1,6 @@
 from fastapi import HTTPException
-
+import random
+import string
 
 class Round:
     def __init__(self, solution: dict[str, str] = None):
@@ -7,6 +8,7 @@ class Round:
         self.all_prompts: set[str] = set()
         self.all_images: set[str] = set()
         self.image_to_prompt: dict[str, str] = dict()
+        self.time = None
 
     def correction_map(self):
         return {prompt_id: self.solution[prompt_id] == self.image_to_prompt.get(prompt_id, '') for prompt_id in self.all_prompts}
@@ -25,27 +27,46 @@ class GameState:
 
 mock_round = Round()
 mock_round_prompts = [
-    'pr-PROMPT1',
-    'pr-PROMPT2',
-    'pr-PROMPT3',
-    'pr-PROMPT4'
+    'pr-01aa',
+    'pr-02aa',
+    'pr-03aa',
+    'pr-04aa'
 ]
 mock_round_images = [
     'im-advjlgjlesa',
-    'im-adv1jgjlesa',
-    'im-adv4lgllesa',
-    'im-advjlgalesa'
+    'im-ajsofeaokae',
+    'im-ajsofesadae',
+    'im-ajsofesaade'
 ]
+
+mock_prompt_dictionary = {
+    "pr-01aa": "some description 1",
+    "pr-02aa": "some description 2",
+    "pr-03aa": "some description 3",
+    "pr-04aa": "some description 4",
+}
+
+
 mock_round.solution = {p: i for p, i in zip(mock_round_prompts, mock_round_images)}
 mock_round.all_prompts = mock_round_prompts
 mock_round.all_images = mock_round_images
 
+mock_game_time_s = 10
+
 games: dict[str, GameState] = {
-    'gm-GAMEID2137': GameState(
+    'gm-game0': GameState(
         rounds=[mock_round]
     )
 }
 
+def create_new_game() -> GameState:
+    letters = string.ascii_lowercase
+    PREFIX = "gm-"
+    game_id = PREFIX + ''.join(random.choice(letters) for i in range(6))
+    if game_id in games:
+        return create_game() 
+    games[game_id] = GameState(rounds=[mock_round])
+    return game_id
 
 def get_points(game_id: str, round_id: int) -> int:
     return games[game_id].rounds[round_id].points()
