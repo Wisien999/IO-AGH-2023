@@ -8,6 +8,8 @@ import {DragDropContext} from "react-beautiful-dnd";
 import LoadingScreen from "../utils/LoadingScreen";
 import {useParams} from "react-router-dom";
 import { parseISO } from 'date-fns';
+import eventEmitters from "../eventEmitters";
+import {ImageMatchEvent, ImageMatchEventParams} from "../eventEmitters/events/ImageMatchEvent";
 
 export default function GameView() {
     const { gameId } = useParams<{ gameId: string }>();
@@ -28,6 +30,22 @@ export default function GameView() {
                 }
             })
         });
+
+        console.log(result)
+
+        if (true) {
+            eventEmitters.emit(ImageMatchEvent, {
+                title: prompt,
+                imageId: image,
+                state: 'success',
+            } as ImageMatchEventParams)
+        } else {
+            eventEmitters.emit(ImageMatchEvent, {
+                title: prompt,
+                imageId: image,
+                state: 'error',
+            } as ImageMatchEventParams)
+        }
 
         console.log(result);
     }
@@ -68,13 +86,23 @@ export default function GameView() {
             <DragDropContext onDragEnd={
                 (result) => {
                     const {destination, draggableId} = result;
-                    const image = draggableId.replace('image-', '');
-                    const prompt = destination?.droppableId.replace('prompt-', '');
+                    const prompt = draggableId;
+                    const image = destination?.droppableId;
+                    console.log(prompt, image)
 
-                    if (prompt) {
-                        // send to backend
+                    if (image) {
+                        eventEmitters.emit(ImageMatchEvent, {
+                            title: prompt,
+                            imageId: image,
+                            state: 'info',
+                        } as ImageMatchEventParams);
+                        setPrompts((prev) => {
+                            delete prev[prompt];
+                            return {
+                                ...prev,
+                            }
+                        })
                         sendPromptMatch(image, prompt);
-                        console.log(image, prompt)
                     }
                 }
             }>

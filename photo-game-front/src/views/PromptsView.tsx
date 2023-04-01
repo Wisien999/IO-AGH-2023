@@ -14,7 +14,7 @@ export default function PromptsView({prompts}: { prompts: Record<string, string>
                         {...provided.droppableProps}
                     >
                         {Object.keys(prompts).map((key, index) => (
-                            <Draggable draggableId={`prompt-${key}`} index={index}>
+                            <Draggable draggableId={`${key}`} index={index}>
                                 {(provided, snapshot) => (
                                     <Grid
                                         ref={provided.innerRef}
