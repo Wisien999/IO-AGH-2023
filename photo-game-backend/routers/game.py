@@ -15,8 +15,8 @@ class ImageContent:
 mock_prompt_dictionary = {
     "pr-PROMPT1": "some description 1",
     "pr-PROMPT2": "some description 2",
-    "pr-PROMPT2": "some description 3",
-    "pr-PROMPT2": "some description 4",
+    "pr-PROMPT3": "some description 3",
+    "pr-PROMPT4": "some description 4",
 }
 
 class PromptContent(BaseModel):
