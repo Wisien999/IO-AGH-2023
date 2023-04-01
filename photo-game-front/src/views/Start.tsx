@@ -1,8 +1,9 @@
-import {useNavigate} from "react-router-dom";
+import {Outlet, useNavigate} from "react-router-dom";
 import {Button, FormControl, FormLabel, Grid, IconButton, TextField} from "@mui/material";
 import {useState, useContext} from "react";
 import {fetchApi} from "../utils/fetchApi";
 import {useNickname} from '../contexts/NicknameContext'
+import SettingsIcon from '@mui/icons-material/Settings';
 
 function Start() {
     const navigate = useNavigate();
@@ -19,7 +20,7 @@ function Start() {
         // get game id
         const r = await fetchApi('/');
 
-        navigate("/game/" + r);
+        navigate("/game/");
       };
 
     return (
@@ -30,7 +31,9 @@ function Start() {
                         <FormLabel>Enter your nickname:</FormLabel>
                     </Grid>
                     <Grid item xs={6}>
-                        <IconButton>SettingsIcon</IconButton>
+                        <IconButton>
+                            <SettingsIcon/>
+                        </IconButton>
                     </Grid>
                 </Grid>
                 <Grid item xs={12}>
@@ -41,6 +44,7 @@ function Start() {
                     fullWidth={true}>Start the game</Button>
                 </Grid>
             </FormControl>
+            <Outlet/>
         </Grid>
     )
 }
