@@ -4,7 +4,8 @@ from game_state_machine import games
 from typing import List
 
 router = APIRouter(
-    prefix="/game/"
+    prefix="/game",
+    tags=["game"]
 )
 
 class ImageContent:
@@ -20,7 +21,7 @@ class PromptContent(BaseModel):
     prompt_id: str
     text: str
 
-    @static_method
+    @staticmethod
     def from_prompt_id(prompt_id: str):
         return PromptContent(prompt_id=prompt_id, text=mock_prompt_dictionary[prompt_id])
 
@@ -33,7 +34,7 @@ class GameContent(BaseModel):
 
 
 mock_game_data = GameContent(
-    rounnds=[
+    rounds=[
         RoundContent(
             prompts=[
                 PromptContent.from_prompt_id("pr-PROMPT1"),
@@ -48,12 +49,12 @@ mock_game_data = GameContent(
 )
 
 mock_game_dictionary = {
-    "gm-GAMEID2127": mock_game_data 
+    "gm-GAMEID2137": mock_game_data 
 }
 
 @router.post("/")
 def create_game():
-    return mock_game_dictionary.keys()[0]
+    return list(mock_game_dictionary.keys())[0]
 
 @router.get("/{game_id}")
 def get_all_game_data(game_id: str):
