@@ -21,7 +21,7 @@ class PromptContent(BaseModel):
     prompt_id: str
     text: str
 
-    @static_method
+    @staticmethod
     def from_prompt_id(prompt_id: str):
         return PromptContent(prompt_id=prompt_id, text=mock_prompt_dictionary[prompt_id])
 
