@@ -2,9 +2,10 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from game_state_machine import games
 from typing import List
+from game_time import GameTime
 
 router = APIRouter(
-    prefix="/game",
+    prefix="/api/game",
     tags=["game"]
 )
 
@@ -13,10 +14,10 @@ class ImageContent:
     prompt_id: str
 
 mock_prompt_dictionary = {
-    "pr-PROMPT1": "some description 1",
-    "pr-PROMPT2": "some description 2",
-    "pr-PROMPT3": "some description 3",
-    "pr-PROMPT4": "some description 4",
+    "pr-01aa": "some description 1",
+    "pr-02aa": "some description 2",
+    "pr-03aa": "some description 3",
+    "pr-04aa": "some description 4",
 }
 
 class PromptContent(BaseModel):
@@ -35,14 +36,15 @@ class GameContent(BaseModel):
     rounnds: List[RoundContent]
 
 
+
 mock_game_data = GameContent(
     rounnds=[
         RoundContent(
             prompts=[
-                PromptContent.from_prompt_id("pr-PROMPT1"),
-                PromptContent.from_prompt_id("pr-PROMPT2"),
-                PromptContent.from_prompt_id("pr-PROMPT3"),
-                PromptContent.from_prompt_id("pr-PROMPT4"),
+                PromptContent.from_prompt_id("pr-01aa"),
+                PromptContent.from_prompt_id("pr-02aa"),
+                PromptContent.from_prompt_id("pr-03aa"),
+                PromptContent.from_prompt_id("pr-04aa"),
             ],
             images=[
                 "im-advjlgjlesa",
@@ -55,7 +57,7 @@ mock_game_data = GameContent(
 )
 
 mock_game_dictionary = {
-    "gm-GAMEID2137": mock_game_data
+    "gm-game0": mock_game_data
 }
 
 @router.post("/")
@@ -77,6 +79,19 @@ def get_rounds_prompts(game_id: str, round_id: int):
 @router.get("/{game_id}/{round_id}/images")
 def get_rounds_images(game_id: str, round_id: int):
     return mock_game_dictionary[game_id].rounnds[round_id].images
+
+mock_game_time_s = 10
+mock_game_timer = GameTime.from_current_time(mock_game_time_s)
+
+@router.post("/{game_id}/{round_id}/ready")
+def start_game_timer(game_id: str, round_id: int):
+    mock_game_timer = GameTime.from_current_time(mock_game_time_s)
+    return mock_game_timer
+
+@router.get("/{game_id}/{round_id}/time")
+def get_current_time(game_id: str, round_id: int):
+    mock_game_timer.update()
+    return mock_game_timer.current
 
 class UserAction(BaseModel):
     actions: dict[str, str]  # prompt id -> image id
