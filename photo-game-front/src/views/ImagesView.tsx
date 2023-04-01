@@ -11,7 +11,7 @@ export default function ImagesView({images}: { images: string[] }) {
             <Grid item xs={12}>
                 <ImageList>
                     {images.map((item) => (
-                        <Droppable droppableId={`droppable-image-${item}`}>
+                        <Droppable droppableId={`image-${item}`}>
                             {(provided, snapshot) => (
                                 <ImageListItem
                                     key={item}
