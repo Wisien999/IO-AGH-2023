@@ -19,7 +19,7 @@ export const fetchApi = async (url: string, options: RequestInit & { ignoreJSON?
         ...options
     });
     if (options?.ignoreJSON) {
-        return response;
+        return response.text();
     }
     return response.json();
 }

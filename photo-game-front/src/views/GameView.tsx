@@ -31,18 +31,6 @@ export default function GameView() {
             })
         });
 
-        console.log(result)
-
-        if (true) {
-
-        } else {
-            eventEmitters.emit(ImageMatchEvent, {
-                title: prompt,
-                imageId: image,
-                state: 'error',
-            } as ImageMatchEventParams)
-        }
-
         console.log(result);
     }
 
@@ -82,10 +70,11 @@ export default function GameView() {
             <DragDropContext onDragEnd={
                 (result) => {
                     const {destination, draggableId} = result;
-                    const image = draggableId.replace('image-', '');
-                    const prompt = destination?.droppableId.replace('prompt-', '');
+                    const prompt = draggableId;
+                    const image = destination?.droppableId;
+                    console.log(prompt, image)
 
-                    if (prompt) {
+                    if (image) {
                         eventEmitters.emit(ImageMatchEvent, {
                             title: prompt,
                             imageId: image,

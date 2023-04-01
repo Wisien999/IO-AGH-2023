@@ -1,6 +1,6 @@
 import React from "react";
 import {ImageListItem, ImageListItemBar} from "@mui/material";
-import {API_URL_BASE} from "./fetchApi";
+import {API_URL} from "./fetchApi";
 import {Droppable} from "react-beautiful-dnd";
 import eventEmitters from "../eventEmitters";
 import {ImageMatchEvent, ImageMatchEventParams} from "../eventEmitters/events/ImageMatchEvent";
@@ -17,11 +17,12 @@ export default function Image({
     React.useEffect(() => {
         let timeout: any;
         eventEmitters.on(ImageMatchEvent, (params: ImageMatchEventParams) => {
+            console.log(params, item, params.imageId === item)
             if (params.imageId && params.imageId !== item) {
                 return;
             }
-            if (params.title) {
-                setTitle(params.title);
+            if (params.title !== undefined) {
+                setTitle(params.title || undefined);
             }
             if (params.state === 'success') {
                 setColor('green');
@@ -42,7 +43,7 @@ export default function Image({
     }, [item]);
 
     return (
-        <Droppable droppableId={`image-${item}`}>
+        <Droppable droppableId={`${item}`}>
             {(provided, snapshot) => (
                 <ImageListItem
                     key={item}
@@ -53,8 +54,8 @@ export default function Image({
                     {...provided.droppableProps}
                 >
                     <img
-                        src={`${API_URL_BASE}/image/${item}`}
-                        srcSet={`${API_URL_BASE}/image/${item}`}
+                        src={`${API_URL}/image/${item}`}
+                        srcSet={`${API_URL}/image/${item}`}
                         alt={item}
                         loading="lazy"
                     />
