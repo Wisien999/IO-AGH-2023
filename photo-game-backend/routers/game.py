@@ -85,8 +85,11 @@ class MatchResult(BaseModel):
 
 @router.post("/{game_id}/{round_id}/match")
 async def match(game_id: str, round_id: int, user_action: UserAction):
-
     game_round = games[game_id].rounds[round_id]
+
+    is_round_over = game_round.is_round_over(user_action)
+    has_next_round = round_id + 1 < len(games[game_id].rounds)
+
     for prompt_id, image_id in user_action.actions.items():
         if prompt_id in game_round.prompt_to_image:
             del game_round.prompt_to_image[prompt_id]

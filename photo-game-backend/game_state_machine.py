@@ -29,6 +29,11 @@ class Round:
 
         return sum([x for x in self.correction_map().values()]) / len(self.all_prompts)
 
+    def is_round_over(self, action: UserAction) -> bool:
+        if self.round_vaidator is None:
+            return False
+        return self.round_vaidator.validate(action)
+
 
 class DeafulatRoundValidator:
     def __init__(self, round: Round):
