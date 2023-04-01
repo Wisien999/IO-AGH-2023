@@ -65,7 +65,7 @@ def create_new_game() -> GameState:
     game_id = PREFIX + ''.join(random.choice(letters) for i in range(6))
     if game_id in games:
         return create_game() 
-    games[game_id] = GameState(rounds=mock_round)
+    games[game_id] = GameState(rounds=[mock_round])
     return game_id
 
 def get_points(game_id: str, round_id: int) -> int:
