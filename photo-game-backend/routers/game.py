@@ -39,8 +39,12 @@ mock_game_data = GameContent(
             prompts=[
                 PromptContent.from_prompt_id("pr-PROMPT1"),
                 PromptContent.from_prompt_id("pr-PROMPT2"),
+                PromptContent.from_prompt_id("pr-PROMPT2"),
+                PromptContent.from_prompt_id("pr-PROMPT2"),
             ],
             images=[
+                "im-advjlgjlesa",
+                "im-ajsofeaokae",
                 "im-advjlgjlesa",
                 "im-ajsofeaokae",
             ],
@@ -49,7 +53,7 @@ mock_game_data = GameContent(
 )
 
 mock_game_dictionary = {
-    "gm-GAMEID2127": mock_game_data 
+    "gm-GAMEID2137": mock_game_data 
 }
 
 @router.post("/")
