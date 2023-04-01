@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from game_state_machine import *
 from typing import List
@@ -60,7 +60,12 @@ def get_rounds_prompts(game_id: str, round_id: int):
 
 @router.get("/{game_id}/{round_id}/images")
 def get_rounds_images(game_id: str, round_id: int):
-    return GameContent.from_db(game_id).rounds[round_id].images
+    # TODO check if images are ready
+    x = 4
+    if len(images[game_id]) >= x*(round_id+1):
+        return images[game_id][x*round_id, x*(round_id+1)] # TODO edit
+    else:
+        raise HTTPException(418, 'Images are not ready')
 
 @router.post("/{game_id}/{round_id}/ready")
 def start_game_timer(game_id: str, round_id: int):
