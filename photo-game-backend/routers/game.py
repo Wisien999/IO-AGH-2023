@@ -1,12 +1,21 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from game_state_machine import games
 from typing import List
+from common_model import User
 
 router = APIRouter(
     prefix="/game",
     tags=["game"]
 )
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
+
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    user = token
+    return user
 
 class ImageContent:
     image_id: str
@@ -88,7 +97,7 @@ class MatchResult(BaseModel):
 
 
 @router.post("/{game_id}/{round_id}/match")
-async def match(game_id: str, round_id: int, user_action: UserAction):
+async def match(game_id: str, round_id: int, user_action: UserAction, current_user: User = Depends(get_current_user)):
     game_round = games[game_id].rounds[round_id]
     for prompt, image_id in user_action.actions.items():
         del games[game_id].rounds[round_id].image_to_prompt[image_id]
