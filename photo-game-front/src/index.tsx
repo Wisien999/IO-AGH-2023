@@ -2,9 +2,10 @@ import './index.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import Start from './views/Start'
 import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { createTheme, ThemeProvider } from '@mui/material';
+import {createTheme, dividerClasses, ThemeProvider} from '@mui/material';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
@@ -17,11 +18,11 @@ const queryClient = new QueryClient();
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <App/>,
     children: [
       {
         path: "start",
-        element: <div>Start</div>,
+        element: <Start/>,
       },
       {
         path: 'game/:gameId',
