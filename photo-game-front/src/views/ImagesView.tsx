@@ -1,6 +1,7 @@
 import React from 'react';
 import {Grid, ImageList, ImageListItem, ImageListItemBar} from '@mui/material';
 import {Droppable} from "react-beautiful-dnd";
+import {API_URL} from "../utils/fetchApi";
 
 
 export default function ImagesView({images}: { images: string[] }) {
@@ -9,7 +10,7 @@ export default function ImagesView({images}: { images: string[] }) {
         <Grid container>
             <Grid item xs={12}>
                 <ImageList>
-                    {images.map((item, index) => (
+                    {images.map((item) => (
                         <Droppable droppableId={`droppable-image-${item}`}>
                             {(provided, snapshot) => (
                                 <ImageListItem
@@ -18,8 +19,8 @@ export default function ImagesView({images}: { images: string[] }) {
                                     {...provided.droppableProps}
                                 >
                                     <img
-                                        src={`https://images.unsplash.com/photo-1444418776041-9c7e33cc5a9c?w=248&fit=crop&auto=format`}
-                                        srcSet={`https://images.unsplash.com/photo-1444418776041-9c7e33cc5a9c?w=248&fit=crop&auto=format`}
+                                        src={`${API_URL}/image/${item}`}
+                                        srcSet={`${API_URL}/image/${item}`}
                                         alt={item}
                                         loading="lazy"
                                     />

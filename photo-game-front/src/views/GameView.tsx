@@ -11,15 +11,25 @@ export default function GameView() {
     const theme = useTheme();
 
     const query = useQuery(['images'], async () => {
-        return fetchApi('/game/gm-0/0');
+        const result = await fetchApi('/game/gm-GAMEID2137/0');
+        return {
+            images: result.images,
+            prompts: result.prompts.reduce((acc, prompt) => {
+                return {
+                    ...acc,
+                    [prompt.prompt_id]: prompt.text,
+                }
+            }, {}),
+        }
     });
 
     const renderContent = () => {
         if (query.isFetching) {
             return <LoadingScreen/>;
         }
+        console.log(query.data)
 
-        // const {images, prompts} = query.data;
+        const {images, prompts} = query.data || {images: [], prompts: {}};
 
         return (
             <DragDropContext onDragEnd={
@@ -29,15 +39,10 @@ export default function GameView() {
             }>
                 <Grid container spacing={1}>
                     <Grid item xs={12} sm={8}>
-                        <ImagesView images={['test1', 'test2', 'test3', 'test4']}/>
+                        <ImagesView images={images}/>
                     </Grid>
                     <Grid item xs={12} sm={4}>
-                        <PromptsView prompts={{
-                            'test': 'test',
-                            'test2': 'test',
-                            'test3': 'test',
-                            'test4': 'test',
-                        }}/>
+                        <PromptsView prompts={prompts}/>
                     </Grid>
                 </Grid>
             </DragDropContext>
