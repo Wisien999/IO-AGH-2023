@@ -88,7 +88,7 @@ class MatchResult(BaseModel):
 
 
 @router.post("/{game_id}/{round_id}/match")
-async def user_action(game_id: str, round_id: str, user_action: UserAction):
+async def match(game_id: str, round_id: int, user_action: UserAction):
     game_round = games[game_id].rounds[round_id]
     for prompt, image_id in user_action.actions.items():
         del games[game_id].rounds[round_id].image_to_prompt[image_id]

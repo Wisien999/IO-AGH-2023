@@ -1,11 +1,6 @@
 from fastapi import HTTPException
 
 
-class GameState:
-    def __init__(self, rounds):
-        self.rounds: dict[str, Round] = rounds
-
-
 class Round:
     def __init__(self, solution: dict[str, str] = None):
         self.solution: dict[str, str] = solution or dict()
@@ -21,6 +16,11 @@ class Round:
             raise HTTPException(404)
 
         return sum([sum(x) for x in self.correction_map().values()]) / len(self.all_prompts)
+
+
+class GameState:
+    def __init__(self, rounds: list[Round]):
+        self.rounds: list[Round] = rounds
 
 
 mock_round = Round()
@@ -42,12 +42,10 @@ mock_round.all_images = mock_round_images
 
 games: dict[str, GameState] = {
     'gm-GAMEID2137': GameState(
-        rounds={
-            '0': mock_round
-        }
+        rounds=[mock_round]
     )
 }
 
 
-def get_points(game_id: str, round_id: str) -> int:
+def get_points(game_id: str, round_id: int) -> int:
     return games[game_id].rounds[round_id].points()
