@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 
 router = APIRouter(
-    prefix="/image",
+    prefix="/api/image",
     tags=["images"]
 )
 
