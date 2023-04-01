@@ -9,13 +9,13 @@ class Round:
         self.image_to_prompt: dict[str, str] = dict()
 
     def correction_map(self):
-        return {prompt_id: {img_id: self.solution[prompt_id] == img_id for img_id in self.all_images} for prompt_id in self.all_prompts}
+        return {prompt_id: self.solution[prompt_id] == self.image_to_prompt.get(prompt_id, '') for prompt_id in self.all_prompts}
 
-    def points(self) -> int:
+    def points(self) -> float:
         if len(self.all_images) != len(self.all_prompts):
             raise HTTPException(404)
 
-        return sum([sum(x) for x in self.correction_map().values()]) / len(self.all_prompts)
+        return sum([x for x in self.correction_map().values()]) / len(self.all_prompts)
 
 
 class GameState:

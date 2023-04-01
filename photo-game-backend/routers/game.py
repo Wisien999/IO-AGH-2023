@@ -83,7 +83,7 @@ class UserAction(BaseModel):
 
 
 class MatchResult(BaseModel):
-    is_correct: dict[str, dict[str, bool]]
+    is_correct: dict[str, bool]
     current_points: float
 
 
