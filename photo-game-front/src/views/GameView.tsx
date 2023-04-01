@@ -31,6 +31,22 @@ export default function GameView() {
             })
         });
 
+        console.log(result)
+
+        if (true) {
+            eventEmitters.emit(ImageMatchEvent, {
+                title: prompt,
+                imageId: image,
+                state: 'success',
+            } as ImageMatchEventParams)
+        } else {
+            eventEmitters.emit(ImageMatchEvent, {
+                title: prompt,
+                imageId: image,
+                state: 'error',
+            } as ImageMatchEventParams)
+        }
+
         console.log(result);
     }
 
