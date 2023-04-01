@@ -1,5 +1,4 @@
 import React from 'react';
-import './App.css';
 import { Box, Container, useTheme } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 
