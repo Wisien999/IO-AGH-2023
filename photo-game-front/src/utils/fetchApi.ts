@@ -1,4 +1,5 @@
-export const API_URL = 'http://localhost:8000';
+export const API_URL = 'http://localhost:8000/api';
+export const API_URL_BASE = 'http://localhost:8000';
 
 const headers = new Headers();
 
@@ -12,10 +13,13 @@ export const removeAuthToken = () => {
     headers.delete('Authorization');
 }
 
-export const fetchApi = async (url: string, options: RequestInit = {}) => {
+export const fetchApi = async (url: string, options: RequestInit & { ignoreJSON?: boolean } = {}) => {
     const response = await fetch(`${API_URL}${url}`, {
         headers,
         ...options
     });
+    if (options?.ignoreJSON) {
+        return response.text();
+    }
     return response.json();
 }

@@ -4,14 +4,15 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import Start from './views/Start'
 import reportWebVitals from './reportWebVitals';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import {createTheme, dividerClasses, ThemeProvider} from '@mui/material';
+import {createBrowserRouter, Navigate, RouterProvider,} from 'react-router-dom';
+import {createTheme, ThemeProvider} from '@mui/material';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import GameView from "./views/GameView";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import SettingsView from "./views/SettingsView";
 
 const queryClient = new QueryClient();
 
@@ -21,8 +22,18 @@ const router = createBrowserRouter([
     element: <App/>,
     children: [
       {
+        path: "",
+        element: <Navigate to="/start" replace />,
+      },
+      {
         path: "start",
         element: <Start/>,
+        children: [
+          {
+            path: 'settings',
+            element: <SettingsView />
+          }
+        ]
       },
       {
         path: 'game/:gameId',
