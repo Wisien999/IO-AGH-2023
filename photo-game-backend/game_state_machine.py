@@ -4,14 +4,14 @@ import string
 
 class Round:
     def __init__(self, solution: dict[str, str] = None):
-        self.solution: dict[str, str] = solution or dict()
+        self.solution: dict[str, str] = solution or dict()          # prompt -> image
         self.all_prompts: set[str] = set()
         self.all_images: set[str] = set()
-        self.image_to_prompt: dict[str, str] = dict()
+        self.prompt_to_image: dict[str, str] = dict()
         self.time = None
 
-    def correction_map(self):
-        return {prompt_id: self.solution[prompt_id] == self.image_to_prompt.get(prompt_id, '') for prompt_id in self.all_prompts}
+    def correction_map(self) -> dict[str, str]:
+        return {prompt_id: self.solution[prompt_id] == self.prompt_to_image.get(prompt_id, '') for prompt_id in self.all_prompts}
 
     def points(self) -> float:
         if len(self.all_images) != len(self.all_prompts):

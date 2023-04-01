@@ -86,13 +86,13 @@ class MatchResult(BaseModel):
 @router.post("/{game_id}/{round_id}/match")
 async def match(game_id: str, round_id: int, user_action: UserAction):
     game_round = games[game_id].rounds[round_id]
-    for prompt, image_id in user_action.actions.items():
-        if image_id in game_round.image_to_prompt:
-            del game_round.image_to_prompt[image_id]
-        game_round.image_to_prompt = {k: v for k, v in games[game_id].rounds[round_id].image_to_prompt.items() if v != prompt}
+    for prompt_id, image_id in user_action.actions.items():
+        if prompt_id in game_round.prompt_to_image:
+            del game_round.prompt_to_image[prompt_id]
+        game_round.prompt_to_image = {k: v for k, v in game_round.prompt_to_image.items() if v != image_id}
 
-    for prompt, image_id in user_action.actions:
-        game_round.image_to_prompt[image_id] = prompt
+    for prompt, prompt_id in user_action.actions.items():
+        game_round.prompt_to_image[prompt] = prompt_id
 
     return MatchResult(
         is_correct=game_round.correction_map(),
