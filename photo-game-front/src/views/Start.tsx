@@ -1,6 +1,7 @@
 import {useNavigate} from "react-router-dom";
 import {Button, FormControl, FormLabel, Grid, TextField} from "@mui/material";
 import {useState} from "react";
+import {fetchApi} from "../utils/fetchApi";
 
 function Start() {
     const navigate = useNavigate();
@@ -15,11 +16,16 @@ function Start() {
     return (
         <Grid container>
             <FormControl>
-                <Grid item>
+                <Grid item xs={12}>
                     <FormLabel>Enter your nickname:</FormLabel>
                 </Grid>
-                <TextField onChange={(e) => {setNick(e.target.value)}} value={nick} variant={"outlined"}></TextField>
-                <Button onClick={(event) => {handleClick(event)}} variant={"contained"}>Start the game</Button>
+                <Grid item xs={12}>
+                    <TextField onChange={(e) => {setNick(e.target.value)}} value={nick} variant={"outlined"}></TextField>
+                </Grid>
+                <Grid item xs={12} alignSelf={"stretch"}>
+                    <Button onClick={(event) => {handleClick(event)}} variant={"contained"}
+                    fullWidth={true}>Start the game</Button>
+                </Grid>
             </FormControl>
         </Grid>
     )
