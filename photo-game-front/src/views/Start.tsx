@@ -18,9 +18,9 @@ function Start() {
         setNickname(nick);
 
         // get game id
-        const r = await fetchApi('/');
+        const r = await fetchApi('/', {ignoreJSON: true} as any);
 
-        navigate("/game/");
+        navigate("/game/" + r);
       };
 
     return (
