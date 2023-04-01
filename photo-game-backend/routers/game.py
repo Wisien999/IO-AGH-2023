@@ -1,4 +1,6 @@
 from fastapi import APIRouter
+from pydantic import BaseModel
+from game_state_machine import games
 
 router = APIRouter(
     prefix="/game/"
@@ -24,6 +26,18 @@ def get_rounds_prompts():
 def get_rounds_images():
     pass
 
+
+class UserAction(BaseModel):
+    actions: dict[str, str]  # prompt id -> image id
+
+
 @router.post("/{game_id}/{round_id}/match")
-def post_match():
+async def user_action(game_id: int, round_id: int, user_action: UserAction):
+    for prompt, image_id in user_action.actions:
+        del games[game_id].rounds[round_id].image_to_prompt[image_id]
+        del games[game_id].rounds[round_id].image_to_prompt[prompt]
+
+    for prompt, image_id in user_action.actions:
+        games[game_id].rounds[round_id].image_to_prompt[image_id] = prompt
+
     pass
