@@ -43,6 +43,7 @@ class GameContent(BaseModel):
 
 @router.post("/")
 def create_game():
+    
     return create_new_game()
 
 @router.get("/{game_id}")
