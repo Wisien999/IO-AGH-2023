@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from game_state_machine import games
+from game_state_machine import *
 from typing import List
 from game_time import GameTime
 
@@ -13,12 +13,6 @@ class ImageContent:
     image_id: str
     prompt_id: str
 
-mock_prompt_dictionary = {
-    "pr-01aa": "some description 1",
-    "pr-02aa": "some description 2",
-    "pr-03aa": "some description 3",
-    "pr-04aa": "some description 4",
-}
 
 class PromptContent(BaseModel):
     prompt_id: str
@@ -33,65 +27,51 @@ class RoundContent(BaseModel):
     images: List[str]
 
 class GameContent(BaseModel):
-    rounnds: List[RoundContent]
+    rounds: List[RoundContent]
 
-
-
-mock_game_data = GameContent(
-    rounnds=[
-        RoundContent(
-            prompts=[
-                PromptContent.from_prompt_id("pr-01aa"),
-                PromptContent.from_prompt_id("pr-02aa"),
-                PromptContent.from_prompt_id("pr-03aa"),
-                PromptContent.from_prompt_id("pr-04aa"),
-            ],
-            images=[
-                "im-advjlgjlesa",
-                "im-ajsofeaokae",
-                "im-ajsofesaade",
-                "im-ajsofesadae",
-            ],
+    @staticmethod
+    def from_db(game_id: str):
+        game = games[game_id]
+        return GameContent(
+            rounds=[
+                RoundContent(
+                    prompts=[PromptContent.from_prompt_id(p) for p in round.all_prompts],
+                    images=list(round.all_images)
+                ) for round in game.rounds
+            ]
         )
-    ]
-)
-
-mock_game_dictionary = {
-    "gm-game0": mock_game_data
-}
 
 @router.post("/")
 def create_game():
-    return list(mock_game_dictionary.keys())[0]
+    return create_new_game()
 
 @router.get("/{game_id}")
 def get_all_game_data(game_id: str):
-    return mock_game_dictionary[game_id]
+    return GameContent.from_db(game_id)
 
 @router.get("/{game_id}/{round_id}")
 def get_round_all_data(game_id: str, round_id: int):
-    return mock_game_dictionary[game_id].rounnds[round_id]
+    return GameContent.from_db(game_id).rounds[round_id]
 
 @router.get("/{game_id}/{round_id}/prompts")
 def get_rounds_prompts(game_id: str, round_id: int):
-    return mock_game_dictionary[game_id].rounnds[round_id].prompts
+    return GameContent.from_db(game_id).rounds[round_id].prompts
 
 @router.get("/{game_id}/{round_id}/images")
 def get_rounds_images(game_id: str, round_id: int):
-    return mock_game_dictionary[game_id].rounnds[round_id].images
-
-mock_game_time_s = 10
-mock_game_timer = GameTime.from_current_time(mock_game_time_s)
+    return GameContent.from_db(game_id).rounds[round_id].images
 
 @router.post("/{game_id}/{round_id}/ready")
 def start_game_timer(game_id: str, round_id: int):
-    mock_game_timer = GameTime.from_current_time(mock_game_time_s)
-    return mock_game_timer
+    games[game_id].rounds[round_id].time = GameTime.from_current_time(mock_game_time_s)
+    return games[game_id].rounds[round_id].time
 
 @router.get("/{game_id}/{round_id}/time")
 def get_current_time(game_id: str, round_id: int):
-    mock_game_timer.update()
-    return mock_game_timer.current
+    if games[game_id].rounds[round_id].time is None:
+        games[game_id].rounds[round_id].time = GameTime.from_current_time(mock_game_time_s)
+    games[game_id].rounds[round_id].time.update()
+    return games[game_id].rounds[round_id].time.current
 
 class UserAction(BaseModel):
     actions: dict[str, str]  # prompt id -> image id
