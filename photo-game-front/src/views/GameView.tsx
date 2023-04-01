@@ -6,12 +6,34 @@ import {useQuery} from "@tanstack/react-query";
 import {fetchApi} from "../utils/fetchApi";
 import {DragDropContext} from "react-beautiful-dnd";
 import LoadingScreen from "../utils/LoadingScreen";
+import {useParams} from "react-router-dom";
+import { parseISO } from 'date-fns';
 
 export default function GameView() {
+    const { gameId } = useParams<{ gameId: string }>();
     const theme = useTheme();
+    const [images, setImages] = React.useState<string[]>([]);
+    const [prompts, setPrompts] = React.useState<Record<string, string>>({});
+    const [endTime, setEndTime] = React.useState<Date>(new Date());
+    const [startTime, setStartTime] = React.useState<Date>(new Date());
+
+
+
+    const sendPromptMatch = async (image: string, prompt: string) => {
+        const result = await fetchApi(`/game/${gameId}/0/match`, {
+            method: 'POST',
+            body: JSON.stringify({
+                actions: {
+                    [prompt]: image
+                }
+            })
+        });
+
+        console.log(result);
+    }
 
     const query = useQuery(['images'], async () => {
-        const result = await fetchApi('/game/gm-GAMEID2137/0');
+        const result = await fetchApi(`/game/${gameId}/0`);
         return {
             images: result.images,
             prompts: result.prompts.reduce((acc, prompt) => {
@@ -21,20 +43,39 @@ export default function GameView() {
                 }
             }, {}),
         }
+    }, {
+        onSuccess: async (data) => {
+            setImages(data.images);
+            setPrompts(data.prompts);
+
+            const result = await fetchApi(`/game/${gameId}/0/ready`, {
+                method: 'POST',
+            });
+
+            const { start, end } = result;
+
+            setStartTime(parseISO(start));
+            setEndTime(parseISO(end));
+        }
     });
 
     const renderContent = () => {
         if (query.isFetching) {
-            return <LoadingScreen/>;
+            return <LoadingScreen />;
         }
-        console.log(query.data)
-
-        const {images, prompts} = query.data || {images: [], prompts: {}};
 
         return (
             <DragDropContext onDragEnd={
                 (result) => {
-                    console.log(result)
+                    const {destination, draggableId} = result;
+                    const image = draggableId.replace('image-', '');
+                    const prompt = destination?.droppableId.replace('prompt-', '');
+
+                    if (prompt) {
+                        // send to backend
+                        sendPromptMatch(image, prompt);
+                        console.log(image, prompt)
+                    }
                 }
             }>
                 <Grid container spacing={1}>
