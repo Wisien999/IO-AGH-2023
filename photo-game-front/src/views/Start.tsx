@@ -1,24 +1,25 @@
 import {useNavigate} from "react-router-dom";
 import {Button, FormControl, FormLabel, Grid, IconButton, TextField} from "@mui/material";
-import {useState} from "react";
+import {useState, useContext} from "react";
 import {fetchApi} from "../utils/fetchApi";
-import SettingsIcon from '@mui/icons-material/Settings';
+import {useNickname} from '../contexts/NicknameContext'
 
 function Start() {
     const navigate = useNavigate();
 
     const [nick, setNick] = useState('');
-    const [gameName, setGameName] = useState('');
+    const { setNickname } = useNickname();
 
-    const handleClick = (event: { preventDefault: () => void; })  => {
+    const handleClick = async (event: { preventDefault: () => void; })  => {
         event.preventDefault();
 
-        // TODO set nickname using context
+        // nickname
+        setNickname(nick);
 
         // get game id
-        fetchApi('/').then(response => setGameName(response));
+        const r = await fetchApi('/');
 
-        navigate("/game/" + gameName);
+        navigate("/game/" + r);
       };
 
     return (
