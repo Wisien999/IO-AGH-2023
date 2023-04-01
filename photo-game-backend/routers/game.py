@@ -1,31 +1,75 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from game_state_machine import games
+from typing import List
 
 router = APIRouter(
     prefix="/game/"
 )
 
+class ImageContent:
+    image_id: str
+    prompt_id: str
+
+mock_prompt_dictionary = {
+    "pr-PROMPT1": "some description 1",
+    "pr-PROMPT2": "some description 2",
+}
+
+class PromptContent(BaseModel):
+    prompt_id: str
+    text: str
+
+    @static_method
+    def from_prompt_id(prompt_id: str):
+        return PromptContent(prompt_id=prompt_id, text=mock_prompt_dictionary[prompt_id])
+
+class RoundContent(BaseModel):
+    prompts: List[PromptContent]
+    images: List[str]
+
+class GameContent(BaseModel):
+    rounnds: List[RoundContent]
+
+
+mock_game_data = GameContent(
+    rounnds=[
+        RoundContent(
+            prompts=[
+                PromptContent.from_prompt_id("pr-PROMPT1"),
+                PromptContent.from_prompt_id("pr-PROMPT2"),
+            ],
+            images=[
+                "im-advjlgjlesa",
+                "im-ajsofeaokae",
+            ],
+        )
+    ]
+)
+
+mock_game_dictionary = {
+    "gm-GAMEID2127": mock_game_data 
+}
+
 @router.post("/")
 def create_game():
-    pass
+    return mock_game_dictionary.keys()[0]
 
 @router.get("/{game_id}")
-def get_all_game_data(game_id: int):
-    pass
+def get_all_game_data(game_id: str):
+    return mock_game_dictionary[game_id]
 
 @router.get("/{game_id}/{round_id}")
-def get_round_all_data():
-    pass
+def get_round_all_data(game_id: str, round_id: int):
+    return mock_game_dictionary[game_id].rounnds[round_id]
 
 @router.get("/{game_id}/{round_id}/prompts")
-def get_rounds_prompts():
-    pass
+def get_rounds_prompts(game_id: str, round_id: int):
+    return mock_game_dictionary[game_id].rounnds[round_id].prompts
 
 @router.get("/{game_id}/{round_id}/images")
-def get_rounds_images():
-    pass
-
+def get_rounds_images(game_id: str, round_id: int):
+    return mock_game_dictionary[game_id].rounnds[round_id].images
 
 class UserAction(BaseModel):
     actions: dict[str, str]  # prompt id -> image id
