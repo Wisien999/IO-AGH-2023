@@ -15,6 +15,8 @@ class ImageContent:
 mock_prompt_dictionary = {
     "pr-PROMPT1": "some description 1",
     "pr-PROMPT2": "some description 2",
+    "pr-PROMPT2": "some description 3",
+    "pr-PROMPT2": "some description 4",
 }
 
 class PromptContent(BaseModel):
@@ -39,14 +41,14 @@ mock_game_data = GameContent(
             prompts=[
                 PromptContent.from_prompt_id("pr-PROMPT1"),
                 PromptContent.from_prompt_id("pr-PROMPT2"),
-                PromptContent.from_prompt_id("pr-PROMPT2"),
-                PromptContent.from_prompt_id("pr-PROMPT2"),
+                PromptContent.from_prompt_id("pr-PROMPT3"),
+                PromptContent.from_prompt_id("pr-PROMPT4"),
             ],
             images=[
                 "im-advjlgjlesa",
                 "im-ajsofeaokae",
-                "im-advjlgjlesa",
-                "im-ajsofeaokae",
+                "im-ajsofesaade",
+                "im-ajsofesadae",
             ],
         )
     ]
