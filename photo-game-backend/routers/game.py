@@ -43,7 +43,6 @@ class GameContent(BaseModel):
 
 @router.post("/")
 def create_game():
-    
     return create_new_game()
 
 @router.get("/{game_id}")
@@ -74,17 +73,19 @@ def get_current_time(game_id: str, round_id: int):
     games[game_id].rounds[round_id].time.update()
     return games[game_id].rounds[round_id].time.current
 
-class UserAction(BaseModel):
-    actions: dict[str, str]  # prompt id -> image id
 
 
 class MatchResult(BaseModel):
     is_correct: dict[str, bool]
     current_points: float
+    is_round_over: bool = False
+    has_next_round: bool = False
+    is_move_valid: bool = True
 
 
 @router.post("/{game_id}/{round_id}/match")
 async def match(game_id: str, round_id: int, user_action: UserAction):
+
     game_round = games[game_id].rounds[round_id]
     for prompt_id, image_id in user_action.actions.items():
         if prompt_id in game_round.prompt_to_image:
@@ -96,5 +97,7 @@ async def match(game_id: str, round_id: int, user_action: UserAction):
 
     return MatchResult(
         is_correct=game_round.correction_map(),
-        current_points=game_round.points()
+        current_points=game_round.points(),
+        is_round_over=is_round_over,
+        has_next_round=has_next_round
     )

@@ -1,10 +1,17 @@
 from fastapi import HTTPException
 import random
 import string
+from pydantic import BaseModel
+
+
+class UserAction(BaseModel):
+    actions: dict[str, str]  # prompt id -> image id
+
 
 class Round:
     def __init__(self, solution: dict[str, str] = None):
         self.solution: dict[str, str] = solution or dict()          # prompt -> image
+        self.round_vaidator = None
         self.all_prompts: set[str] = set()
         self.all_images: set[str] = set()
         self.prompt_to_image: dict[str, str] = dict()
@@ -13,12 +20,26 @@ class Round:
     def correction_map(self) -> dict[str, str]:
         return {prompt_id: self.solution[prompt_id] == self.prompt_to_image.get(prompt_id, '') for prompt_id in self.all_prompts}
 
+    def set_validator(self, validator):
+        self.round_vaidator = validator
+
     def points(self) -> float:
         if len(self.all_images) != len(self.all_prompts):
             raise HTTPException(404)
 
         return sum([x for x in self.correction_map().values()]) / len(self.all_prompts)
 
+
+class DeafulatRoundValidator:
+    def __init__(self, round: Round):
+        self.round = round
+        self.images = {image_id: False for image_id in self.round.all_images}
+        
+    def validate(self, action: UserAction) -> bool:
+        for prompt_id, image_id in action.actions.items():
+            self.images[image_id] = True
+        return all(self.images.values())
+        
 
 class GameState:
     def __init__(self, rounds: list[Round]):
@@ -68,6 +89,9 @@ def create_new_game() -> GameState:
         game_id = PREFIX + ''.join(random.choice(letters) for i in range(6))
     
     games[game_id] = GameState(rounds=[mock_round])
+    for current_round in games[game_id].rounds:
+        current_round.set_validator(DeafulatRoundValidator(current_round))
+
     return game_id
 
 def get_points(game_id: str, round_id: int) -> int:
