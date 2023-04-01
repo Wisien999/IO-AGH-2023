@@ -62,9 +62,11 @@ games: dict[str, GameState] = {
 def create_new_game() -> GameState:
     letters = string.ascii_lowercase
     PREFIX = "gm-"
-    game_id = PREFIX + ''.join(random.choice(letters) for i in range(6))
-    if game_id in games:
-        return create_game() 
+    game_id = None
+
+    while game_id is None or game_id in games:
+        game_id = PREFIX + ''.join(random.choice(letters) for i in range(6))
+    
     games[game_id] = GameState(rounds=[mock_round])
     return game_id
 

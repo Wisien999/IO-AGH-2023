@@ -43,6 +43,7 @@ class GameContent(BaseModel):
 
 @router.post("/")
 def create_game():
+    
     return create_new_game()
 
 @router.get("/{game_id}")
@@ -86,7 +87,8 @@ class MatchResult(BaseModel):
 async def match(game_id: str, round_id: int, user_action: UserAction):
     game_round = games[game_id].rounds[round_id]
     for prompt, image_id in user_action.actions.items():
-        del games[game_id].rounds[round_id].image_to_prompt[image_id]
+        if image_id in game_round.image_to_prompt:
+            del game_round.image_to_prompt[image_id]
         game_round.image_to_prompt = {k: v for k, v in games[game_id].rounds[round_id].image_to_prompt.items() if v != prompt}
 
     for prompt, image_id in user_action.actions:
