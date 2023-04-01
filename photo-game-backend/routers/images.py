@@ -8,9 +8,9 @@ router = APIRouter(
 
 mock_image_dictionary = {
     "im-advjlgjlesa": "mock-images/512x512-png-images-3-3437135354.png",
-    "im-ajsofeaokae": "mock-images/BMP-1816717683.png"
-    "im-ajsofesadae": "mock-images/512x512-png-images-3-3437135354.png"
-    "im-ajsofesaade": "mock-images/BMP-1816717683.png"
+    "im-ajsofeaokae": "mock-images/BMP-1816717683.png",
+    "im-ajsofesadae": "mock-images/512x512-png-images-3-3437135354.png",
+    "im-ajsofesaade": "mock-images/BMP-1816717683.png",
 }
 
 @router.get("/{imageid}", response_class=FileResponse)
