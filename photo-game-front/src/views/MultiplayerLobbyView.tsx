@@ -50,7 +50,7 @@ export default function MultiplayerLobbyView() {
 
                     }}>
                         <Typography variant="body2">Room: {roomId}</Typography>
-                        <CopyToClipboard text={roomId}>
+                        <CopyToClipboard text={roomId as string}>
                             <IconButton><CopyAll /></IconButton>
                         </CopyToClipboard>
                     </Grid>

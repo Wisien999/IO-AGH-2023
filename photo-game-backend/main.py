@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from routers.images import router as images_router
 from routers.game import router as game_router
+from routers.room import router as room_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -20,6 +21,7 @@ app.add_middleware(
 
 app.include_router(images_router)
 app.include_router(game_router)
+app.include_router(room_router)
 os.system("python3 image_generator.py")
 
 if os.getenv("PHOTO_GAME_DOCKER") == "true":

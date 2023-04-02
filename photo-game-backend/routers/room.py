@@ -43,15 +43,15 @@ async def create_room(params: CreateGameParams) -> CreateRoomResponse:
 
 
 @router.post("/{roomid}/users")
-async def join_room(roomid: str, current_user: User = Depends(get_current_user)):
+async def join_room(roomid: str, current_user: str = Depends(get_current_user)):
     if roomid not in rooms:
         raise HTTPException(status_code=404, detail="room not found")
     room = rooms[roomid]
     if current_user is None:
         raise HTTPException(status_code=400, detail="invalid user")
-    if current_user.username in room.users:
+    if current_user in room.users:
         raise HTTPException(status_code=409, detail="user already exists")
-    room.users.add(current_user.username)
+    room.users.add(current_user)
 
 
 @router.get("/{roomid}/users")
