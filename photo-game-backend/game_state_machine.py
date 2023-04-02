@@ -1,5 +1,3 @@
-from typing import Dict
-
 from fastapi import HTTPException
 import random
 import string
@@ -66,6 +64,11 @@ class Round:
         if self.round_vaidator is None:
             return False
         return self.round_vaidator.validate(action)
+
+    def is_timeout(self):
+        if self.time is None:
+            return False
+        return self.time.is_timeout()
 
     def generate_prompts(self, n_prompts: int, theme: str = None):
         new_prompts = get_prompts(n_prompts, theme)
