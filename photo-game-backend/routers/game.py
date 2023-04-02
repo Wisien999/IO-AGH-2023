@@ -72,23 +72,23 @@ def get_all_game_data(game_id: str):
     check_images_ready_for_round(mock_images_per_round, len(games[game_id].rounds) - 1)
     return GameContent.from_db(game_id)
 
-def check_images_ready_for_round(count: int, round_id: int):
+def check_images_ready_for_round(game_id: int, images_count: int, round_id: int):
     if len(images[game_id]) < images_count*(round_id+1):
         raise HTTPException(418, 'Images are not ready')
 
 @router.get("/{game_id}/{round_id}")
 def get_round_all_data(game_id: str, round_id: int):
-    check_images_ready_for_round(mock_images_per_round, round_id)
+    check_images_ready_for_round(game_id, mock_images_per_round, round_id)
     return GameContent.from_db(game_id).rounds[round_id]
 
 @router.get("/{game_id}/{round_id}/prompts")
 def get_rounds_prompts(game_id: str, round_id: int):
-    check_images_ready_for_round(4, round_id)
+    check_images_ready_for_round(game_id, mock_images_per_round, round_id)
     return GameContent.from_db(game_id).rounds[round_id].prompts
 
 @router.get("/{game_id}/{round_id}/images")
 def get_rounds_images(game_id: str, round_id: int):
-    check_images_ready_for_round(mock_images_per_round, round_id)
+    check_images_ready_for_round(game_id, mock_images_per_round, round_id)
     return GameContent.from_db(game_id).rounds[round_id].images
 
 @router.post("/{game_id}/{round_id}/ready")
