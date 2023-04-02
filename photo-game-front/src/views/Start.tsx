@@ -1,10 +1,10 @@
 import {Outlet, useNavigate} from "react-router-dom";
 import {Button, FormLabel, Grid, IconButton, TextField} from "@mui/material";
-import {useContext, createContext, useMemo, useState} from "react";
+import {useContext, useState} from "react";
 import {fetchApi} from "../utils/fetchApi";
 import {useNickname} from '../contexts/NicknameContext'
 import SettingsIcon from '@mui/icons-material/Settings';
-import {SettingsContext, SettingsProvider} from "../contexts/SettingsContext";
+import {SettingsContext} from "../contexts/SettingsContext";
 
 function Start() {
     const settingsContext = useContext(SettingsContext);
@@ -18,7 +18,8 @@ function Start() {
         'no_of_images': settingsContext.imageNumber,
         'no_of_prompts': settingsContext.promptNumber,
         'round_seconds': settingsContext.timeLimit,
-        'theme': settingsContext.theme
+        'theme': settingsContext.theme,
+        'perma_death': settingsContext.permaDeath
     }
     const {setNickname} = useNickname();
 
@@ -64,7 +65,7 @@ function Start() {
                     fullWidth={true}
                 >Start the game</Button>
             </Grid>
-        <SettingsProvider>
+        {/*<SettingsProvider>*/}
             <Grid item xs={12} alignSelf={"stretch"}>
                 <Button
                     onClick={() => {
@@ -80,7 +81,7 @@ function Start() {
                 >Multiplayer</Button>
             </Grid>
             <Outlet/>
-        </SettingsProvider>
+        {/*</SettingsProvider>*/}
         </Grid>
     )
 }
