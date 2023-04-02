@@ -1,5 +1,6 @@
 .idea
 .git
+.env
 venv
 pretrained
 images
