@@ -91,6 +91,7 @@ class Round:
         self.all_images = images
         self.generate_solution()
         self.are_images_ready = True
+        self.set_validator(DeafulatRoundValidator(self))
 
     def start_timer(self):
         self.time = GameTime.from_current_time(self.game_params.round_seconds)
@@ -110,20 +111,6 @@ class GameState:
     def __init__(self, game_params: CreateGameParams):
         self.rounds: list[Round] = [Round(game_params) for _ in range(game_params.no_of_rounds)]
 
-
-
-mock_round_images = [
-    'im-advjlgjlesa',
-    'im-ajsofeaokae',
-    'im-ajsofesadae',
-    'im-ajsofesaade'
-]
-
-
-
-
-mock_game_time_s = 10
-
 games: dict[str, GameState] = dict()
 
 def generate_images_for_round_task(current_round: Round, images_count: int):
@@ -135,7 +122,6 @@ def create_new_game(game_params: CreateGameParams, background_tasks: BackgroundT
     games[game_id] = GameState(game_params)
     for current_round in games[game_id].rounds:
         current_round.generate_prompts(game_params.no_of_prompts, game_params.theme)
-        current_round.set_validator(DeafulatRoundValidator(current_round))
         background_tasks.add_task(generate_images_for_round_task, current_round, game_params.no_of_images)
 
     return game_id
