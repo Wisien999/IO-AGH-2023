@@ -40,26 +40,10 @@ function Start() {
         timeLimit,
         imageNumber,
         promptNumber,
-        setRoundNumber: (roundNumber) => {
-            setRoundNumber(roundNumber);
-            localStorage.setItem('roundNumber', roundNumber);
-            addAuthToken(nick);
-        },
-        setTimeLimit: (timeLimit) => {
-            setTimeLimit(timeLimit);
-            localStorage.setItem('timeLimit', timeLimit);
-            addAuthToken(nick);
-        },
-        setImageNumber: (imageNumber) => {
-            setImageNumber(imageNumber);
-            localStorage.setItem('imageNumber', imageNumber);
-            addAuthToken(nick);
-        },
-        setPromptNumber: (promptNumber) => {
-            setPromptNumber(promptNumber);
-            localStorage.setItem('promptNumber', promptNumber);
-            addAuthToken(nick);
-        }
+        setRoundNumber,
+        setTimeLimit,
+        setImageNumber,
+        setPromptNumber
     }), [roundNumber, timeLimit, imageNumber, promptNumber]);
 
     const {setNickname} = useNickname();
