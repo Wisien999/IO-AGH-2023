@@ -15,12 +15,14 @@ const createRoom = async (setRoomId) => {
     const response = await fetchApi('/room', {
         method: 'POST',
     });
+    console.log(response)
 
     const joined = await joinRoom(response.roomid);
 
     if (!joined) {
         console.log('Oj to niedobrze')
     }
+    console.log(response)
     setRoomId(response.roomid);
 }
 
