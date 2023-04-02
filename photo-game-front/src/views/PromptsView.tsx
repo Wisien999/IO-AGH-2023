@@ -1,8 +1,10 @@
 import React from 'react';
-import {Grid, Typography} from '@mui/material';
+import {Box, Grid, Typography, useTheme} from '@mui/material';
 import {Draggable, Droppable} from "react-beautiful-dnd";
 
 export default function PromptsView({prompts}: { prompts: Record<string, string> }) {
+    const theme = useTheme();
+    const color = theme.palette.primary.main;
     return (
         <>
             <Droppable droppableId={'prompts'} direction={'horizontal'}>
@@ -14,7 +16,7 @@ export default function PromptsView({prompts}: { prompts: Record<string, string>
                         {...provided.droppableProps}
                     >
                         {Object.keys(prompts).map((key, index) => (
-                            <Draggable draggableId={`draggable-prompt-${key}`} index={index}>
+                            <Draggable draggableId={`${key}`} index={index} key={key}>
                                 {(provided, snapshot) => (
                                     <Grid
                                         ref={provided.innerRef}
@@ -23,7 +25,20 @@ export default function PromptsView({prompts}: { prompts: Record<string, string>
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
                                     >
-                                        <Typography variant="body2">{prompts[key]}</Typography>
+                                        <Box sx={{
+                                            padding: theme.spacing(2),
+                                            border: `1px solid ${color}`,
+                                            borderRadius: theme.spacing(1),
+                                        }}>
+                                            <Typography
+                                                variant="body2"
+                                                color={color}
+                                                sx={{
+                                                    userSelect: 'none',
+                                                    msUserSelect: 'none',
+                                                }}
+                                            >{prompts[key]}</Typography>
+                                        </Box>
                                     </Grid>
                                 )}
                             </Draggable>
