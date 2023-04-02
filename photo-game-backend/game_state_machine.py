@@ -27,9 +27,14 @@ class UserAction(BaseModel):
 
 async def generate_images_for_round(prompts: List[str]) -> List[str]:
     address = ('localhost', 6000)
+    address2 = ('localhost', 0)
     conn = Client(address, authkey=b'secret password')
-    conn.send(prompts)
-    images = conn.recv()
+    listener = Listener(address2, authkey=b'secret password')
+    conn2 = listener.accept()
+    conn.send((prompts, listener.address))
+    images = conn2.recv()
+    conn.close()
+    listener.close()
     return images
 
 class Round:

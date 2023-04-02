@@ -1,6 +1,6 @@
 from datetime import datetime
 from min_dalle import MinDalle
-from multiprocessing.connection import Listener
+from multiprocessing.connection import Listener, Client
 import threading
 import torch
 from queue import Queue
@@ -27,16 +27,21 @@ def listen(queue: Queue):
         conn = listener.accept()
         print('connection accepted from', listener.last_accepted)
         while True:
-            prompts = conn.recv()
-            queue.put((prompts, conn))
+            prompts, address = conn.recv()
+            print(f'Got prompts: {prompts}')
+            queue.put((prompts, address))
 
 def send(model: MinDalle, queue: Queue):
     while True:
-        prompts, conn = queue.get(block=True)
+        prompts, address = queue.get(block=True)
         pictures = []
         for prompt in prompts:
+            print(f'Generating image for prompt: {prompt}')
             pictures.append(generate_image(model, prompt))
-        conn.send(pictures)
+        client = Client(address, authkey=b'secret password')
+        print(f'Sending pictures: {pictures} to {address}')
+        client.send(pictures)
+        client.close()
 
 
 if __name__ == '__main__':
@@ -55,6 +60,7 @@ if __name__ == '__main__':
     # start the sender thread
     sender_thread = threading.Thread(target=send, args=(model, prompts,))
     sender_thread.start()
+
 
 
 
