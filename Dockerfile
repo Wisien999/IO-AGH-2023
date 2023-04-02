@@ -3,7 +3,7 @@ ENV NODE_ENV=production
 WORKDIR /frontend
 COPY ["./photo-game-front/package.json", "./photo-game-front/package-lock.json*", "./"]
 RUN --mount=type=cache,target=/root/.npm npm install --production
-ENV API_URL=""
+ENV REACT_APP_API_URL=
 COPY ./photo-game-front .
 RUN npm run build
 
