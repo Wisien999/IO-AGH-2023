@@ -1,5 +1,5 @@
-export const API_URL = 'http://localhost:8000/api';
-export const API_URL_BASE = 'http://localhost:8000';
+export const API_URL_BASE = process.env.API_URL || 'http://localhost:8000';
+export const API_URL = `${API_URL_BASE}/api`;
 
 const headers = new Headers();
 

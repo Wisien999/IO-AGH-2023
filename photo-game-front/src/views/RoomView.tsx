@@ -11,9 +11,12 @@ const joinRoom = async (roomId) => {
     return result.ok;
 }
 
-const createRoom = async (setRoomId) => {
+const createRoom = async (setRoomId, params) => {
     const response = await fetchApi('/room', {
         method: 'POST',
+        body: JSON.stringify({
+            ...params
+        })
     });
 
     const joined = await joinRoom(response.roomid);
@@ -52,7 +55,7 @@ export default function RoomView() {
             <Grid item xs={12}>
                 <Button variant="text" fullWidth onClick={() => {
                     setJoiningRoom(false);
-                    return createRoom(setRoomIdWithNavigate);
+                    return createRoom(setRoomIdWithNavigate, state.options);
                 }}>Create room</Button>
             </Grid>
             <Grid item xs={12}>
