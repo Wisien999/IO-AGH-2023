@@ -57,11 +57,8 @@ if __name__ == '__main__':
     listener_thread = threading.Thread(target=listen, args=(prompts,))
     listener_thread.start()
 
-    # start the sender thread
-    sender_thread = threading.Thread(target=send, args=(model, prompts,))
-    sender_thread.start()
-
     print("ready")
+    send(model, prompts)
 
 
 
