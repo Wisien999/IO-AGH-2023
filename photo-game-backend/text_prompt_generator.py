@@ -6,7 +6,7 @@ import json
 def get_prompts(n=5, theme=None):
 
     content = f"Please generate {n} unique image descriptions, each between 5 to 10 words in length. Theme is {theme}"
-    if theme is None:
+    if theme is None or theme == "":
         content = f"Please generate {n} unique image descriptions, each between 5 to 10 words in length."
 
     openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -19,4 +19,5 @@ def get_prompts(n=5, theme=None):
     )
     json_response = json.loads(response.choices[0].message.content)
     prompt_list = json_response["descriptions"]
+    # prompt_list = ['winter', 'summer', 'spring', 'autumn']
     return prompt_list

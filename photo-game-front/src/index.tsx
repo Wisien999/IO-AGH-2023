@@ -14,6 +14,8 @@ import GameView from "./views/GameView";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import SettingsView from "./views/SettingsView";
 import GameOverScreen from "./views/GameOverScreen";
+import RoomView from "./views/RoomView";
+import MultiplayerLobbyView from "./views/MultiplayerLobbyView";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,7 +45,19 @@ const router = createBrowserRouter([
         ]
       },
       {
+        path: 'multiplayer',
+        element: <RoomView />,
+      },
+      {
+        path: 'room/:roomId',
+        element: <MultiplayerLobbyView />,
+      },
+      {
         path: 'game/:gameId',
+        element: <Navigate to="0" />,
+      },
+      {
+        path: 'game/:gameId/:round',
         element: <GameView />,
       },
       {
