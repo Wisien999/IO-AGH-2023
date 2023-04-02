@@ -54,6 +54,14 @@ export default function SettingsView() {
                                 value={startContext.promptNumber}
                                 type={'number'}></TextField>
                     </Grid>
+                    <Grid item xs={6}>
+                        <FormLabel>Game theme:</FormLabel>
+                    </Grid>
+                     <Grid item xs={6} display={"flex"} justifyContent={"flex-end"}>
+                        <TextField
+                                onChange={(event) => {startContext.setTheme(event.target.value)}}
+                                value={startContext.theme}></TextField>
+                    </Grid>
                     <Grid xs={12}>
                         <Button
                             onClick={(event) => {

@@ -24,7 +24,8 @@ function Start() {
             'no_of_rounds': settingsContext.roundNumber,
             'no_of_images': settingsContext.imageNumber,
             'no_of_prompts': settingsContext.promptNumber,
-            'round_seconds': settingsContext.timeLimit
+            'round_seconds': settingsContext.timeLimit,
+            'theme': settingsContext.theme
         }
 
         // get game id
