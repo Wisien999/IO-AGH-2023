@@ -107,9 +107,7 @@ class MatchResult(BaseModel):
 async def match(game_id: str, round_id: int, user_action: UserAction, current_user: User = Depends(get_current_user)):
     game_round = games[game_id].rounds[round_id]
 
-    is_round_over = game_round.is_round_over(user_action)
-    has_next_round = round_id + 1 < len(games[game_id].rounds)
-
+    # update state machine
     for prompt_id, image_id in user_action.actions.items():
         if prompt_id in game_round.prompt_to_image:
             del game_round.prompt_to_image[prompt_id]
@@ -117,6 +115,9 @@ async def match(game_id: str, round_id: int, user_action: UserAction, current_us
 
     for prompt, prompt_id in user_action.actions.items():
         game_round.prompt_to_image[prompt] = prompt_id
+
+    is_round_over = game_round.is_round_over(user_action)
+    has_next_round = round_id + 1 < len(games[game_id].rounds)
 
     return MatchResult(
         is_correct=game_round.correction_map(),
