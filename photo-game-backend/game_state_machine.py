@@ -85,16 +85,36 @@ class Round:
         for i in range(len(self.all_images)):
             self.solution[self.all_prompts[i]] = self.all_images[i]
 
-    def generate_images(self, n_images: int):
+    def generate_images(self, n_images: int, game_params: CreateGameParams):
         prompts_values = [prompt_dictionary[prompt_id] for prompt_id in self.all_prompts[0:n_images]]
         images = generate_images_for_round(prompts_values)
         self.all_images = images
         self.generate_solution()
         self.are_images_ready = True
-        self.set_validator(DeafulatRoundValidator(self))
+        self.set_validator(DeafulatRoundValidator(self) if not game_params.perma_death else PermaDeathRoundValidator(self))
 
     def start_timer(self):
         self.time = GameTime.from_current_time(self.game_params.round_seconds)
+
+
+class PermaDeathRoundValidator:
+    def __init__(self, round: Round):
+        self.round = round
+        self.images = {image_id: False for image_id in self.round.all_images}
+
+    def validate(self, action: UserAction) -> bool:
+        for prompt_id, image_id in action.actions.items():
+            self.images[image_id] = True
+
+        cm = self.round.correction_map()
+        for image_id, correct in self.images.items():
+            if correct:
+                prompt_id = list(self.round.solution.keys())[list(self.round.solution.values()).index(image_id)]
+                if not cm[prompt_id]:
+                    return True
+
+        return False
+
 
 class DeafulatRoundValidator:
     def __init__(self, round: Round):
@@ -113,8 +133,8 @@ class GameState:
 
 games: dict[str, GameState] = dict()
 
-def generate_images_for_round_task(current_round: Round, images_count: int):
-    current_round.generate_images(images_count)
+def generate_images_for_round_task(current_round: Round, images_count: int, game_params: CreateGameParams):
+    current_round.generate_images(images_count, game_params)
 
 def create_new_game(game_params: CreateGameParams, background_tasks: BackgroundTasks) -> str:
     game_id = generate_unique_id('gm-', games)
@@ -122,6 +142,6 @@ def create_new_game(game_params: CreateGameParams, background_tasks: BackgroundT
     games[game_id] = GameState(game_params)
     for current_round in games[game_id].rounds:
         current_round.generate_prompts(game_params.no_of_prompts, game_params.theme)
-        background_tasks.add_task(generate_images_for_round_task, current_round, game_params.no_of_images)
+        background_tasks.add_task(generate_images_for_round_task, current_round, game_params.no_of_images, game_params)
 
     return game_id
