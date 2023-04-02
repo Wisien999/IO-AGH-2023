@@ -105,7 +105,7 @@ export default function GameView() {
                         sendPromptMatch(image, prompt).then((res) => {
                             if (res) {
                                 eventEmitters.emit(ImageMatchEvent, {
-                                    title: prompt,
+                                    title: prompts[prompt],
                                     imageId: image,
                                     state: 'info',
                                 } as ImageMatchEventParams);

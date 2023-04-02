@@ -32,7 +32,7 @@ function Start() {
                     <FormLabel>Enter your nickname:</FormLabel>
                 </Grid>
                 <Grid item xs={6} display={"flex"} justifyContent={"flex-end"}>
-                    <IconButton>
+                    <IconButton onClick={() => navigate('settings')}>
                         <SettingsIcon/>
                     </IconButton>
                 </Grid>
