@@ -9,6 +9,7 @@ from text_prompt_generator import get_prompts
 from typing import List, Dict
 from multiprocessing.connection import Listener, Client
 from common_model import CreateGameParams
+from fastapi import BackgroundTasks
 
 def generate_unique_id(prefix: str, dict: Dict[str, str]) -> str:
     letters = string.ascii_lowercase
@@ -108,13 +109,16 @@ mock_game_time_s = 10
 
 games: dict[str, GameState] = dict()
 
-async def create_new_game(game_params: CreateGameParams) -> str:
+def generate_images_for_round(current_round: Round, images_count: int):
+    current_round.generate_images(images_count)
+
+def create_new_game(game_params: CreateGameParams, background_tasks: BackgroundTasks) -> str:
     game_id = generate_unique_id('gm-', games)
 
     games[game_id] = GameState(game_params)
     for current_round in games[game_id].rounds:
         current_round.generate_prompts(game_params.no_of_prompts, game_params.theme)
         current_round.set_validator(DeafulatRoundValidator(current_round))
-        await current_round.generate_images(game_params.no_of_images)
+        background_tasks.add_task(generate_images_for_round, current_round, game_params.no_of_images)
 
     return game_id
