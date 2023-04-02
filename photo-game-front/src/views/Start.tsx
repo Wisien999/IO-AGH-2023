@@ -1,7 +1,7 @@
 import {Outlet, useNavigate} from "react-router-dom";
 import {Button, FormLabel, Grid, IconButton, TextField} from "@mui/material";
 import {createContext, useMemo, useState} from "react";
-import {addAuthToken, fetchApi} from "../utils/fetchApi";
+import {fetchApi} from "../utils/fetchApi";
 import {useNickname} from '../contexts/NicknameContext'
 import SettingsIcon from '@mui/icons-material/Settings';
 
@@ -46,6 +46,13 @@ function Start() {
         setPromptNumber
     }), [roundNumber, timeLimit, imageNumber, promptNumber]);
 
+    const options = {
+        'no_of_rounds': roundNumber,
+        'no_of_images': imageNumber,
+        'no_of_prompts': promptNumber,
+        'round_seconds': timeLimit
+    }
+
     const {setNickname} = useNickname();
 
     const handleClick = async (event: { preventDefault: () => void; }) => {
@@ -53,13 +60,6 @@ function Start() {
 
         // nickname
         setNickname(nick);
-
-        const options = {
-            'no_of_rounds': roundNumber,
-            'no_of_images': imageNumber,
-            'no_of_prompts': promptNumber,
-            'round_seconds': timeLimit
-        }
 
         // get game id
         const r = await fetchApi('/game', {
@@ -96,6 +96,20 @@ function Start() {
                     variant="contained"
                     fullWidth={true}
                 >Start the game</Button>
+            </Grid>
+            <Grid item xs={12} alignSelf={"stretch"}>
+                <Button
+                    onClick={() => {
+                        setNickname(nick);
+                        navigate('/multiplayer', {
+                            state: {
+                                options
+                            }
+                        })
+                    }}
+                    variant="contained"
+                    fullWidth
+                >Multiplayer</Button>
             </Grid>
         <settingsContext.Provider value={state}>
             <Outlet/>
