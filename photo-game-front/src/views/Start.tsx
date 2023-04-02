@@ -9,19 +9,21 @@ function Start() {
     const navigate = useNavigate();
 
     const [nick, setNick] = useState('');
-    const { setNickname } = useNickname();
+    const {setNickname} = useNickname();
 
-    const handleClick = async (event: { preventDefault: () => void; })  => {
+    const handleClick = async (event: { preventDefault: () => void; }) => {
         event.preventDefault();
 
         // nickname
         setNickname(nick);
 
         // get game id
-        const r = await fetchApi('/', {ignoreJSON: true} as any);
+        const r = await fetchApi('/game', {
+            method: 'POST',
+        });
 
         navigate("/game/" + r);
-      };
+    };
 
     return (
         <Grid container justifyContent={"center"} rowSpacing={1}>
