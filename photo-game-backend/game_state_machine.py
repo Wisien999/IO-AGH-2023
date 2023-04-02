@@ -28,11 +28,13 @@ class UserAction(BaseModel):
 
 def generate_images_for_round(prompts: List[str]) -> List[str]:
     address = ('localhost', 6000)
-    address2 = ('localhost', 0)
+    address2 = ('localhost', 6001)
+    print(prompts)
     conn = Client(address, authkey=b'secret password')
     listener = Listener(address2, authkey=b'secret password')
-    conn2 = listener.accept()
+    print("trying to send")
     conn.send((prompts, listener.address))
+    conn2 = listener.accept()
     images = conn2.recv()
     conn.close()
     listener.close()
@@ -126,6 +128,7 @@ def create_new_game(game_params: CreateGameParams, background_tasks: BackgroundT
     for current_round in games[game_id].rounds:
         current_round.generate_prompts(game_params.no_of_prompts, game_params.theme)
         current_round.set_validator(DeafulatRoundValidator(current_round))
-        background_tasks.add_task(generate_images_for_round_task, current_round, game_params.no_of_images)
+        #background_tasks.add_task(generate_images_for_round_task, current_round, game_params.no_of_images)
+        generate_images_for_round_task(current_round, game_params.no_of_images)
 
     return game_id

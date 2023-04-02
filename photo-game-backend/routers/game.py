@@ -55,10 +55,7 @@ class GameContent(BaseModel):
         game = games[game_id]
         return GameContent(
             rounds=[
-                RoundContent(
-                    prompts=[PromptContent.from_prompt_id(p) for p in round.all_prompts],
-                    images=list(round.all_images)
-                ) for round in game.rounds
+                RoundContent.from_round(round) for round in game.rounds
             ]
         )
 
@@ -89,6 +86,8 @@ def start_game_timer(game_id: str, round_id: int):
 
 @router.get("/{game_id}/{round_id}/time")
 def get_current_time(game_id: str, round_id: int):
+    if game_id not in games:
+        raise HTTPException(404, "Game not found")
     if games[game_id].rounds[round_id].time is None:
         games[game_id].rounds[round_id].time = GameTime.from_current_time(mock_game_time_s)
     games[game_id].rounds[round_id].time.update()
