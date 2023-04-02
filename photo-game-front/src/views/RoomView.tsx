@@ -2,6 +2,7 @@ import React from "react";
 import {Button, Grid, TextField, Typography} from "@mui/material";
 import {fetchApi} from "../utils/fetchApi";
 import {useLocation, useNavigate} from "react-router-dom";
+import {useSnackbar} from "notistack";
 
 const joinRoom = async (roomId) => {
     const result = await fetchApi(`/room/${roomId}/users`, {
@@ -11,9 +12,12 @@ const joinRoom = async (roomId) => {
     return result.ok;
 }
 
-const createRoom = async (setRoomId) => {
+const createRoom = async (setRoomId, params) => {
     const response = await fetchApi('/room', {
         method: 'POST',
+        body: JSON.stringify({
+            ...params
+        })
     });
     console.log(response)
 
@@ -28,6 +32,8 @@ const createRoom = async (setRoomId) => {
 
 export default function RoomView() {
 
+    const { enqueueSnackbar } = useSnackbar();
+
     const navigate = useNavigate();
 
     const {state} = useLocation();
@@ -36,6 +42,9 @@ export default function RoomView() {
     const [joiningRoom, setJoiningRoom] = React.useState<boolean>(false);
 
     const setRoomIdWithNavigate = (roomId) => {
+        enqueueSnackbar('Room created', {
+            variant: 'success'
+        });
         navigate(`/room/${roomId}`, {
             state: {
                 ...state,
@@ -54,7 +63,7 @@ export default function RoomView() {
             <Grid item xs={12}>
                 <Button variant="text" fullWidth onClick={() => {
                     setJoiningRoom(false);
-                    return createRoom(setRoomIdWithNavigate);
+                    return createRoom(setRoomIdWithNavigate, state.options);
                 }}>Create room</Button>
             </Grid>
             <Grid item xs={12}>
@@ -76,6 +85,9 @@ export default function RoomView() {
                                 onClick={async () => {
                                     const result = await joinRoom(roomId);
                                     if (result) {
+                                        enqueueSnackbar('Joined room', {
+                                            variant: 'success'
+                                        });
                                         navigate(`/room/${roomId}`, {
                                             state: {
                                                 ...state,
@@ -83,7 +95,9 @@ export default function RoomView() {
                                             }
                                         });
                                     }
-                                    // TODO if id wrong display error
+                                    enqueueSnackbar('Room not found', {
+                                        variant: 'error'
+                                    });
                                 }}>Join</Button>
                     </Grid>
                 </>

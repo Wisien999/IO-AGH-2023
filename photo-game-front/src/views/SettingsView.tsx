@@ -1,5 +1,5 @@
-import React, {useContext, useState} from 'react';
-import {Button, Dialog, DialogContent, DialogTitle, FormLabel, Grid, TextField} from "@mui/material";
+import React, {useContext} from 'react';
+import {Button, Dialog, DialogContent, DialogTitle, FormLabel, Grid, Switch, TextField} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import {SettingsContext} from "../contexts/SettingsContext";
 
@@ -8,7 +8,16 @@ export default function SettingsView() {
 
     const navigate = useNavigate();
 
-     const handleClick = async (event: { preventDefault: () => void; }) => {
+    const handleSwitch = (event) => {
+        if (event.target.checked) {
+            startContext.setPermaDeath(true);
+        }
+        else {
+            startContext.setPermaDeath(false);
+        }
+    }
+
+    const handleClick = async (event: { preventDefault: () => void; }) => {
         event.preventDefault();
 
         navigate("/start");
@@ -61,6 +70,13 @@ export default function SettingsView() {
                         <TextField
                                 onChange={(event) => {startContext.setTheme(event.target.value)}}
                                 value={startContext.theme}></TextField>
+                    </Grid>
+                     <Grid item xs={6}>
+                        <FormLabel>Perma death mode:</FormLabel>
+                    </Grid>
+                     <Grid item xs={6} display={"flex"} justifyContent={"flex-end"}>
+                        <Switch checked={startContext.permaDeath}
+                                onChange={(event) => handleSwitch(event)}/>
                     </Grid>
                     <Grid xs={12}>
                         <Button
