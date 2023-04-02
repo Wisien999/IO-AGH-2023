@@ -83,7 +83,8 @@ def get_rounds_images(game_id: str, round_id: int):
 
 @router.post("/{game_id}/{round_id}/ready")
 def start_game_timer(game_id: str, round_id: int):
-    games[game_id].rounds[round_id].start_timer()
+    if games[game_id].rounds[round_id].time is None:
+        games[game_id].rounds[round_id].start_timer()
     return games[game_id].rounds[round_id].time
 
 @router.get("/{game_id}/{round_id}/time")
