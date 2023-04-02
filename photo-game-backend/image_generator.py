@@ -21,7 +21,7 @@ def generate_image(model: MinDalle, prompt: str) -> str:
     return f'{timestamp}.png'
 
 def listen(queue: Queue):
-    address = ('localhost', 6000)
+    address = ('localhost', 6002)
     listener = Listener(address, authkey=b'secret password')
     while True:
         conn = listener.accept()

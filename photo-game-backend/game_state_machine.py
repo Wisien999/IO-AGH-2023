@@ -26,7 +26,7 @@ class UserAction(BaseModel):
 
 
 def generate_images_for_round(prompts: List[str]) -> List[str]:
-    address = ('localhost', 6000)
+    address = ('localhost', 6002)
     address2 = ('localhost', 6001)
     print(prompts)
     conn = Client(address, authkey=b'secret password')
@@ -93,7 +93,7 @@ class Round:
         self.are_images_ready = True
 
     def start_timer(self):
-        self.time = GameTime.from_game_params(game_params)
+        self.time = GameTime.from_current_time(self.game_params.round_seconds)
 
 class DeafulatRoundValidator:
     def __init__(self, round: Round):
