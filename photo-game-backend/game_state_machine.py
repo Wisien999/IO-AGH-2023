@@ -10,6 +10,7 @@ from typing import List, Dict
 from multiprocessing.connection import Listener, Client
 from common_model import CreateGameParams
 from fastapi import BackgroundTasks
+from game_time import GameTime
 
 def generate_unique_id(prefix: str, dict: Dict[str, str]) -> str:
     letters = string.ascii_lowercase
@@ -41,7 +42,7 @@ def generate_images_for_round(prompts: List[str]) -> List[str]:
     return images
 
 class Round:
-    def __init__(self):
+    def __init__(self, game_params: CreateGameParams):
         self.solution: dict[str, str] = dict()          # prompt -> image
         self.round_vaidator = None
         self.all_prompts: list[str] = list()
@@ -49,6 +50,7 @@ class Round:
         self.prompt_to_image: dict[str, str] = dict()
         self.time = None
         self.are_images_ready = False
+        self.game_params = game_params
 
     def correction_map(self) -> dict[str, str]:
         return {prompt_id: self.solution[prompt_id] == self.prompt_to_image.get(prompt_id, '') for prompt_id in self.all_prompts}
@@ -86,6 +88,8 @@ class Round:
         self.generate_solution()
         self.are_images_ready = True
 
+    def start_timer(self):
+        self.time = GameTime.from_game_params(game_params)
 
 class DeafulatRoundValidator:
     def __init__(self, round: Round):
@@ -100,7 +104,7 @@ class DeafulatRoundValidator:
 
 class GameState:
     def __init__(self, game_params: CreateGameParams):
-        self.rounds: list[Round] = [Round() for _ in range(game_params.no_of_rounds)]
+        self.rounds: list[Round] = [Round(game_params) for _ in range(game_params.no_of_rounds)]
 
 
 
