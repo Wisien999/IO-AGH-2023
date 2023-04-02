@@ -1,15 +1,17 @@
-from fastapi import HTTPException
+import asyncio
 import random
 import string
-from pydantic import BaseModel
-import asyncio
-from text_prompt_generator import get_prompts
-from typing import List, Dict
 from multiprocessing.connection import Listener, Client
+from random import shuffle
+from typing import List, Dict
+
 from common_model import CreateGameParams
 from fastapi import BackgroundTasks
+from fastapi import HTTPException
 from game_time import GameTime
-from random import shuffle  
+from pydantic import BaseModel
+from text_prompt_generator import get_prompts
+
 
 def generate_unique_id(prefix: str, dict: Dict[str, str]) -> str:
     letters = string.ascii_lowercase
@@ -20,15 +22,24 @@ def generate_unique_id(prefix: str, dict: Dict[str, str]) -> str:
 
     return new_id
 
+
 prompt_dictionary = {}
+
 
 class UserAction(BaseModel):
     actions: dict[str, str]  # prompt id -> image id
 
 
+used_ports = set()
+
+
 def generate_images_for_round(prompts: List[str]) -> List[str]:
+    port = random.randint(6005, 7500)
+    while port in used_ports:
+        port = random.randint(6005, 7500)
+    used_ports.add(port)
     address = ('localhost', 6002)
-    address2 = ('localhost', 6001)
+    address2 = ('localhost', port)
     print(prompts)
     conn = Client(address, authkey=b'secret password')
     listener = Listener(address2, authkey=b'secret password')
@@ -39,11 +50,13 @@ def generate_images_for_round(prompts: List[str]) -> List[str]:
     print(f"Got images: {images}")
     conn.close()
     listener.close()
+    used_ports.remove(port)
     return images
+
 
 class Round:
     def __init__(self, game_params: CreateGameParams):
-        self.solution: dict[str, str] = dict()          # prompt -> image
+        self.solution: dict[str, str] = dict()  # prompt -> image
         self.round_vaidator = None
         self.all_prompts: list[str] = list()
         self.all_images: list[str] = list()
@@ -62,7 +75,7 @@ class Round:
             result[prompt_id] = self.solution[prompt_id] == self.prompt_to_image.get(prompt_id, '')
 
         return result
-        
+
     def set_validator(self, validator):
         self.round_vaidator = validator
 
@@ -100,9 +113,9 @@ class Round:
         random_order = list(range(len(self.all_prompts)))
         shuffle(random_order)
         prompts_values = [prompt_dictionary[self.all_prompts[i]] for i in random_order]
-        
+
         images = generate_images_for_round(prompts_values)
-        
+
         self.all_images = images
         self.generate_solution(random_order)
         self.are_images_ready = True
@@ -111,26 +124,30 @@ class Round:
     def start_timer(self):
         self.time = GameTime.from_current_time(self.game_params.round_seconds)
 
+
 class DeafulatRoundValidator:
     def __init__(self, round: Round):
         self.round = round
         self.images = {image_id: False for image_id in self.round.all_images}
-        
+
     def validate(self, action: UserAction) -> bool:
         for prompt_id, image_id in action.actions.items():
             self.images[image_id] = True
         return all(self.images.values())
-        
+
 
 class GameState:
     def __init__(self, game_params: CreateGameParams):
         self.rounds: list[Round] = [Round(game_params) for _ in range(game_params.no_of_rounds)]
 
+
 games: dict[str, GameState] = dict()
+
 
 def generate_images_for_round_task(current_round: Round, game_params: CreateGameParams):
     current_round.generate_prompts(game_params.no_of_prompts, game_params.theme)
     current_round.generate_images(game_params.no_of_images)
+
 
 def create_new_game(game_params: CreateGameParams, background_tasks: BackgroundTasks) -> str:
     game_id = generate_unique_id('gm-', games)
