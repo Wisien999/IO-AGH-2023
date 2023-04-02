@@ -9,6 +9,7 @@ from text_prompt_generator import get_prompts
 from typing import List, Dict
 from multiprocessing.connection import Listener, Client
 from common_model import CreateGameParams
+from fastapi import BackgroundTasks
 
 def generate_unique_id(prefix: str, dict: Dict[str, str]) -> str:
     letters = string.ascii_lowercase
@@ -25,7 +26,7 @@ class UserAction(BaseModel):
     actions: dict[str, str]  # prompt id -> image id
 
 
-async def generate_images_for_round(prompts: List[str]) -> List[str]:
+def generate_images_for_round(prompts: List[str]) -> List[str]:
     address = ('localhost', 6000)
     address2 = ('localhost', 0)
     conn = Client(address, authkey=b'secret password')
@@ -70,13 +71,15 @@ class Round:
             prompts_for_game.append(prompt_id)
             prompt_dictionary[prompt_id] = prompt
 
+        self.all_prompts = prompts_for_game
+
     def generate_solution(self):
         for i in range(len(self.all_images)):
             self.solution[self.all_prompts[i]] = self.all_images[i]
 
-    async def generate_images(self, n_images: int):
+    def generate_images(self, n_images: int):
         prompts_values = [prompt_dictionary[prompt_id] for prompt_id in self.all_prompts[0:n_images]]
-        images = await generate_images_for_round(prompts_values)
+        images = generate_images_for_round(prompts_values)
         self.all_images = images
         self.generate_solution()
         self.are_images_ready = True
@@ -113,13 +116,16 @@ mock_game_time_s = 10
 
 games: dict[str, GameState] = dict()
 
-async def create_new_game(game_params: CreateGameParams) -> str:
+def generate_images_for_round_task(current_round: Round, images_count: int):
+    current_round.generate_images(images_count)
+
+def create_new_game(game_params: CreateGameParams, background_tasks: BackgroundTasks) -> str:
     game_id = generate_unique_id('gm-', games)
 
     games[game_id] = GameState(game_params)
     for current_round in games[game_id].rounds:
         current_round.generate_prompts(game_params.no_of_prompts, game_params.theme)
         current_round.set_validator(DeafulatRoundValidator(current_round))
-        await current_round.generate_images(game_params.no_of_images)
+        background_tasks.add_task(generate_images_for_round_task, current_round, game_params.no_of_images)
 
     return game_id

@@ -1,5 +1,5 @@
 from typing import List, Set
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, Depends, BackgroundTasks
 from fastapi.responses import JSONResponse
 from fastapi import APIRouter
 from pydantic import BaseModel
@@ -34,10 +34,10 @@ game_for_room: dict[str, str] = dict()
 
 @router.post("")
 @router.post("/")
-async def create_room(params: CreateGameParams) -> CreateRoomResponse:
+async def create_room(params: CreateGameParams, background_tasks: BackgroundTasks) -> CreateRoomResponse:
     room_id = f"ri-{uuid.uuid4()}"
     rooms[room_id] = Room(users=set())
-    gameid = create_new_game(params)
+    gameid = create_new_game(params, background_tasks)
     game_for_room[room_id] = gameid
     return CreateRoomResponse(roomid=room_id)
 

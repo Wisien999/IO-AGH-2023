@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, BackgroundTasks
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from game_state_machine import *
@@ -63,8 +63,8 @@ class GameContent(BaseModel):
         )
 
 @router.post("/")
-async def create_game(game_params: CreateGameParams):
-    return await create_new_game(game_params)
+def create_game(game_params: CreateGameParams, background_tasks: BackgroundTasks):
+    return create_new_game(game_params, background_tasks)
 
 @router.get("/{game_id}")
 def get_all_game_data(game_id: str):
