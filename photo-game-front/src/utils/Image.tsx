@@ -1,5 +1,5 @@
 import React from "react";
-import {ImageListItem, ImageListItemBar} from "@mui/material";
+import {ImageListItem, ImageListItemBar, useTheme} from "@mui/material";
 import {API_URL} from "./fetchApi";
 import {Droppable} from "react-beautiful-dnd";
 import eventEmitters from "../eventEmitters";
@@ -10,6 +10,7 @@ export default function Image({
                               }: {
     item: string;
 }) {
+    const theme = useTheme();
 
     const [color, setColor] = React.useState<string | undefined>(undefined);
     const [title, setTitle] = React.useState<string | undefined>(undefined);
@@ -48,7 +49,9 @@ export default function Image({
                 <ImageListItem
                     key={item}
                     sx={{
-                        border: color ? `2px solid ${color}` : undefined
+                        border: color ? `2px solid ${color}` : undefined,
+                        borderRadius: theme.spacing(1),
+                        padding: theme.spacing(1),
                     }}
                     ref={provided.innerRef}
                     {...provided.droppableProps}
@@ -58,6 +61,10 @@ export default function Image({
                         srcSet={`${API_URL}/image/${item}`}
                         alt={item}
                         loading="lazy"
+                        style={{
+                            maxWidth: 256,
+                            maxHeight: 256,
+                        }}
                     />
                     {!snapshot.isDraggingOver && (
                         <ImageListItemBar
