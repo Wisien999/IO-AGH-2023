@@ -44,6 +44,10 @@ const router = createBrowserRouter([
       },
       {
         path: 'game/:gameId',
+        element: <Navigate to="0" />,
+      },
+      {
+        path: 'game/:gameId/:round',
         element: <GameView />,
       },
       {

@@ -16,7 +16,7 @@ export default function PromptsView({prompts}: { prompts: Record<string, string>
                         {...provided.droppableProps}
                     >
                         {Object.keys(prompts).map((key, index) => (
-                            <Draggable draggableId={`${key}`} index={index}>
+                            <Draggable draggableId={`${key}`} index={index} key={key}>
                                 {(provided, snapshot) => (
                                     <Grid
                                         ref={provided.innerRef}
@@ -30,7 +30,14 @@ export default function PromptsView({prompts}: { prompts: Record<string, string>
                                             border: `1px solid ${color}`,
                                             borderRadius: theme.spacing(1),
                                         }}>
-                                            <Typography variant="body2" color={color}>{prompts[key]}</Typography>
+                                            <Typography
+                                                variant="body2"
+                                                color={color}
+                                                sx={{
+                                                    userSelect: 'none',
+                                                    msUserSelect: 'none',
+                                                }}
+                                            >{prompts[key]}</Typography>
                                         </Box>
                                     </Grid>
                                 )}

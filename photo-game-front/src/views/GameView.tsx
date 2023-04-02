@@ -13,7 +13,7 @@ import {ImageMatchEvent, ImageMatchEventParams} from "../eventEmitters/events/Im
 import TimerView from "./TimerView";
 
 export default function GameView() {
-    const {gameId} = useParams<{ gameId: string }>();
+    const {gameId, round} = useParams<{ gameId: string; round: string }>();
     const theme = useTheme();
     const [images, setImages] = React.useState<string[]>([]);
     const [prompts, setPrompts] = React.useState<Record<string, string>>({});
@@ -23,34 +23,40 @@ export default function GameView() {
     const navigate = useNavigate();
 
 
-    const sendPromptMatch = async (image: string, prompt: string) => {
+    const sendPromptMatch = async (image?: string, prompt?: string): Promise<boolean> => {
         const result: {
             current_points: 0;
             is_correct: Record<string, boolean>;
-        } = await fetchApi(`/game/${gameId}/0/match`, {
+            is_move_valid: boolean;
+            is_round_over: boolean;
+            has_next_round: boolean;
+        } = await fetchApi(`/game/${gameId}/${round}/match`, {
             method: 'POST',
-            body: JSON.stringify({
+            body: JSON.stringify(prompt && image ? {
                 actions: {
                     [prompt]: image
                 }
+            } : {
+                actions: {}
             })
         });
 
         setCurrentPoints(result.current_points);
 
-        if (Object.keys(prompts).length === 0) {
-            navigate('/gameover', {
+        if (result.is_round_over) {
+            const nextRound = result.has_next_round ? `/game/${gameId}/${parseInt(round || '0') + 1}` : '/gameover';
+            navigate(nextRound, {
                 state: {
                     points: currentPoints,
                 }
             });
         }
 
-        console.log(result);
+        return result.is_move_valid;
     }
 
     const query = useQuery(['images'], async () => {
-        const result = await fetchApi(`/game/${gameId}/0`);
+        const result = await fetchApi(`/game/${gameId}/${round}`);
         return {
             images: result.images,
             prompts: result.prompts.reduce((acc, prompt) => {
@@ -65,7 +71,7 @@ export default function GameView() {
             setImages(data.images);
             setPrompts(data.prompts);
 
-            const result = await fetchApi(`/game/${gameId}/0/ready`, {
+            const result = await fetchApi(`/game/${gameId}/${round}/ready`, {
                 method: 'POST',
             });
 
@@ -87,21 +93,30 @@ export default function GameView() {
                     const {destination, draggableId} = result;
                     const prompt = draggableId;
                     const image = destination?.droppableId;
-                    console.log(prompt, image)
+                    console.log(prompt, image, destination);
+
+
+                    if (image === 'prompts') {
+                        return;
+                    }
 
                     if (image) {
-                        eventEmitters.emit(ImageMatchEvent, {
-                            title: prompt,
-                            imageId: image,
-                            state: 'info',
-                        } as ImageMatchEventParams);
-                        setPrompts((prev) => {
-                            delete prev[prompt];
-                            return {
-                                ...prev,
+
+                        sendPromptMatch(image, prompt).then((res) => {
+                            if (res) {
+                                eventEmitters.emit(ImageMatchEvent, {
+                                    title: prompt,
+                                    imageId: image,
+                                    state: 'info',
+                                } as ImageMatchEventParams);
+                                setPrompts((prev) => {
+                                    delete prev[prompt];
+                                    return {
+                                        ...prev,
+                                    }
+                                })
                             }
-                        })
-                        sendPromptMatch(image, prompt);
+                        });
                     }
                 }
             }>
@@ -111,9 +126,7 @@ export default function GameView() {
                             <TimerView
                                 startDate={startTime}
                                 endDate={endTime}
-                                onTimeout={() => {
-                                    console.log('Timeout')
-                                }}
+                                onTimeout={() => sendPromptMatch()}
                             />
                         )}
                     </Grid>

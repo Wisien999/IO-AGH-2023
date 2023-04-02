@@ -18,7 +18,6 @@ export default function Image({
     React.useEffect(() => {
         let timeout: any;
         eventEmitters.on(ImageMatchEvent, (params: ImageMatchEventParams) => {
-            console.log(params, item, params.imageId === item)
             if (params.imageId && params.imageId !== item) {
                 return;
             }
