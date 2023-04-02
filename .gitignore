@@ -1,0 +1,9 @@
+.idea
+.git
+.env
+venv
+pretrained
+images
+photo-game-front/node_modules
+photo-game-front/.idea
+photo-game-backend/.idea

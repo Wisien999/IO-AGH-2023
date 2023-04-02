@@ -18,12 +18,14 @@ const createRoom = async (setRoomId, params) => {
             ...params
         })
     });
+    console.log(response)
 
     const joined = await joinRoom(response.roomid);
 
     if (!joined) {
         console.log('Oj to niedobrze')
     }
+    console.log(response)
     setRoomId(response.roomid);
 }
 

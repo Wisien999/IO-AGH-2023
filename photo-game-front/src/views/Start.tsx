@@ -1,58 +1,25 @@
 import {Outlet, useNavigate} from "react-router-dom";
 import {Button, FormLabel, Grid, IconButton, TextField} from "@mui/material";
-import {createContext, useMemo, useState} from "react";
+import {useContext, createContext, useMemo, useState} from "react";
 import {fetchApi} from "../utils/fetchApi";
 import {useNickname} from '../contexts/NicknameContext'
 import SettingsIcon from '@mui/icons-material/Settings';
-
-const settingsContext = createContext<{
-    roundNumber: number;
-    timeLimit: number;
-    imageNumber: number;
-    promptNumber: number;
-    setRoundNumber: (r: number) => void;
-    setTimeLimit: (r: number) => void;
-    setImageNumber: (r: number) => void;
-    setPromptNumber: (r: number) => void;
-
-}>({
-    roundNumber: 1,
-    timeLimit: 20,
-    imageNumber: 4,
-    promptNumber: 4,
-    setRoundNumber() {},
-    setTimeLimit() {},
-    setImageNumber() {},
-    setPromptNumber() {}
-})
+import {SettingsContext, SettingsProvider} from "../contexts/SettingsContext";
 
 function Start() {
+    const settingsContext = useContext(SettingsContext);
+
     const navigate = useNavigate();
 
     const [nick, setNick] = useState('');
-    const [roundNumber, setRoundNumber] = useState(1);
-    const [timeLimit, setTimeLimit] = useState(20);
-    const [imageNumber, setImageNumber] = useState(4);
-    const [promptNumber, setPromptNumber] = useState(4);
-
-    const state = useMemo(() => ({
-        roundNumber,
-        timeLimit,
-        imageNumber,
-        promptNumber,
-        setRoundNumber,
-        setTimeLimit,
-        setImageNumber,
-        setPromptNumber
-    }), [roundNumber, timeLimit, imageNumber, promptNumber]);
 
     const options = {
-        'no_of_rounds': roundNumber,
-        'no_of_images': imageNumber,
-        'no_of_prompts': promptNumber,
-        'round_seconds': timeLimit
+        'no_of_rounds': settingsContext.roundNumber,
+        'no_of_images': settingsContext.imageNumber,
+        'no_of_prompts': settingsContext.promptNumber,
+        'round_seconds': settingsContext.timeLimit,
+        'theme': settingsContext.theme
     }
-
     const {setNickname} = useNickname();
 
     const handleClick = async (event: { preventDefault: () => void; }) => {
@@ -97,6 +64,7 @@ function Start() {
                     fullWidth={true}
                 >Start the game</Button>
             </Grid>
+        <SettingsProvider>
             <Grid item xs={12} alignSelf={"stretch"}>
                 <Button
                     onClick={() => {
@@ -111,9 +79,8 @@ function Start() {
                     fullWidth
                 >Multiplayer</Button>
             </Grid>
-        <settingsContext.Provider value={state}>
             <Outlet/>
-        </settingsContext.Provider>
+        </SettingsProvider>
         </Grid>
     )
 }
