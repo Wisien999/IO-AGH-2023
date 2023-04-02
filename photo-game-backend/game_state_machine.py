@@ -2,6 +2,7 @@ from fastapi import HTTPException
 import random
 import string
 from pydantic import BaseModel
+from common_model import CreateGameParams
 
 
 class UserAction(BaseModel):
@@ -24,9 +25,6 @@ class Round:
         self.round_vaidator = validator
 
     def points(self) -> float:
-        if len(self.all_images) != len(self.all_prompts):
-            raise HTTPException(404)
-
         return sum([x for x in self.correction_map().values()]) / len(self.all_prompts)
 
     def is_round_over(self, action: UserAction) -> bool:
@@ -47,8 +45,8 @@ class DeafulatRoundValidator:
         
 
 class GameState:
-    def __init__(self, rounds: list[Round]):
-        self.rounds: list[Round] = rounds
+    def __init__(self, game_params: CreateGameParams):
+        self.rounds: list[Round] = [Round(dict()) for _ in range(game_params.no_of_rounds)]
 
 
 mock_round = Round()
@@ -85,15 +83,18 @@ games: dict[str, GameState] = {
     )
 }
 
-def create_new_game() -> GameState:
+def create_new_game(game_params: CreateGameParams) -> GameState:
     letters = string.ascii_lowercase
     PREFIX = "gm-"
     game_id = None
 
     while game_id is None or game_id in games:
         game_id = PREFIX + ''.join(random.choice(letters) for i in range(6))
-    
-    games[game_id] = GameState(rounds=[mock_round])
+
+    complete_no_of_images = game_params.no_of_images * game_params.no_of_rounds
+    complete_no_of_prompts = game_params.no_of_prompts * game_params.no_of_rounds
+
+    games[game_id] = GameState(game_params)
     for current_round in games[game_id].rounds:
         current_round.set_validator(DeafulatRoundValidator(current_round))
 
