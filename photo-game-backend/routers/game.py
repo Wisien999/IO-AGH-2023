@@ -60,6 +60,7 @@ class GameContent(BaseModel):
             ]
         )
 
+@router.post("")
 @router.post("/")
 def create_game(game_params: CreateGameParams, background_tasks: BackgroundTasks):
     return create_new_game(game_params, background_tasks)

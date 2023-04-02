@@ -52,8 +52,16 @@ class Round:
         self.game_params = game_params
 
     def correction_map(self) -> dict[str, str]:
-        return {prompt_id: self.solution[prompt_id] == self.prompt_to_image.get(prompt_id, '') for prompt_id in self.all_prompts}
+        result = {}
 
+        for prompt_id in self.all_prompts:
+            if prompt_id not in self.solution:
+                continue
+
+            result[prompt_id] = self.solution[prompt_id] == self.prompt_to_image.get(prompt_id, '')
+
+        return result
+        
     def set_validator(self, validator):
         self.round_vaidator = validator
 
