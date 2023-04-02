@@ -71,14 +71,17 @@ def get_all_game_data(game_id: str):
 
 @router.get("/{game_id}/{round_id}")
 def get_round_all_data(game_id: str, round_id: int):
+    game = games[game_id]
     return RoundContent.from_round(game.rounds[round_id])
 
 @router.get("/{game_id}/{round_id}/prompts")
 def get_rounds_prompts(game_id: str, round_id: int):
+    game = games[game_id]
     return RoundContent.from_round(game.rounds[round_id]).prompts
 
 @router.get("/{game_id}/{round_id}/images")
 def get_rounds_images(game_id: str, round_id: int):
+    game = games[game_id]
     return RoundContent.from_round(game.rounds[round_id]).images
 
 @router.post("/{game_id}/{round_id}/ready")
