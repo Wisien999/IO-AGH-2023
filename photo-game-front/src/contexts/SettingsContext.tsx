@@ -6,11 +6,13 @@ export const SettingsContext = createContext<{
     imageNumber: number;
     promptNumber: number;
     theme: string;
+    permaDeath: boolean;
     setRoundNumber: (r: number) => void;
     setTimeLimit: (r: number) => void;
     setImageNumber: (r: number) => void;
     setPromptNumber: (r: number) => void;
     setTheme: (r: string) => void;
+    setPermaDeath: (r: boolean) => void;
 
 }>({
     roundNumber: 1,
@@ -18,11 +20,13 @@ export const SettingsContext = createContext<{
     imageNumber: 4,
     promptNumber: 4,
     theme: 'Natura',
+    permaDeath: false,
     setRoundNumber() {},
     setTimeLimit() {},
     setImageNumber() {},
     setPromptNumber() {},
-    setTheme() {}
+    setTheme() {},
+    setPermaDeath() {}
 })
 
 export function SettingsProvider({children}: { children: React.ReactNode }) {
@@ -31,6 +35,7 @@ export function SettingsProvider({children}: { children: React.ReactNode }) {
     const [imageNumber, setImageNumber] = useState(4);
     const [promptNumber, setPromptNumber] = useState(4);
     const [theme, setTheme] = useState('Natura');
+    const [permaDeath, setPermaDeath] = useState(false);
 
     const state = useMemo(() => ({
         roundNumber,
@@ -38,12 +43,14 @@ export function SettingsProvider({children}: { children: React.ReactNode }) {
         imageNumber,
         promptNumber,
         theme,
+        permaDeath,
         setRoundNumber,
         setTimeLimit,
         setImageNumber,
         setPromptNumber,
-        setTheme
-    }), [roundNumber, timeLimit, imageNumber, promptNumber, theme]);
+        setTheme,
+        setPermaDeath
+    }), [roundNumber, timeLimit, imageNumber, promptNumber, theme, permaDeath]);
 
     return (
         <SettingsContext.Provider value={state}>
