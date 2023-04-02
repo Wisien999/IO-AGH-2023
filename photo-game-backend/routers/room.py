@@ -1,9 +1,12 @@
 from typing import List, Set
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends
 from fastapi.responses import JSONResponse
 from fastapi import APIRouter
 from pydantic import BaseModel
 import uuid
+
+from common_model import User
+from routers.game import get_current_user
 
 router = APIRouter(
     prefix="/api/room",
@@ -33,14 +36,16 @@ async def create_room() -> CreateRoomResponse:
     return CreateRoomResponse(roomid=room_id)
 
 
-@router.post("/{roomid}/users/{user}")
-async def join_room(roomid: str, user: str):
+@router.post("/{roomid}/users")
+async def join_room(roomid: str, current_user: User = Depends(get_current_user)):
     if roomid not in rooms:
         raise HTTPException(status_code=404, detail="room not found")
     room = rooms[roomid]
-    if user in room.users:
+    if current_user is None:
+        raise HTTPException(status_code=400, detail="invalid user")
+    if current_user.username in room.users:
         raise HTTPException(status_code=409, detail="user already exists")
-    room.users.add(user)
+    room.users.add(current_user.username)
 
 
 @router.get("/{roomid}/users")
