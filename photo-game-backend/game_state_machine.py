@@ -37,6 +37,7 @@ def generate_images_for_round(prompts: List[str]) -> List[str]:
     conn.send((prompts, listener.address))
     conn2 = listener.accept()
     images = conn2.recv()
+    print(f"Got images: {images}")
     conn.close()
     listener.close()
     return images
@@ -132,7 +133,6 @@ def create_new_game(game_params: CreateGameParams, background_tasks: BackgroundT
     for current_round in games[game_id].rounds:
         current_round.generate_prompts(game_params.no_of_prompts, game_params.theme)
         current_round.set_validator(DeafulatRoundValidator(current_round))
-        #background_tasks.add_task(generate_images_for_round_task, current_round, game_params.no_of_images)
-        generate_images_for_round_task(current_round, game_params.no_of_images)
+        background_tasks.add_task(generate_images_for_round_task, current_round, game_params.no_of_images)
 
     return game_id
