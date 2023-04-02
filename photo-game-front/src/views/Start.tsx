@@ -5,7 +5,7 @@ import {addAuthToken, fetchApi} from "../utils/fetchApi";
 import {useNickname} from '../contexts/NicknameContext'
 import SettingsIcon from '@mui/icons-material/Settings';
 
-const settingsContext = createContext<{
+export const settingsContext = createContext<{
     roundNumber: number;
     timeLimit: number;
     imageNumber: number;
