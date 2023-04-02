@@ -58,7 +58,7 @@ class Round:
         self.round_vaidator = validator
 
     def points(self) -> float:
-        return sum([x for x in self.correction_map().values()]) / len(self.all_prompts)
+        return sum([x for x in self.correction_map().values()])
 
     def is_round_over(self, action: UserAction) -> bool:
         if self.round_vaidator is None:
