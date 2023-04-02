@@ -61,7 +61,6 @@ if __name__ == '__main__':
     sender_thread = threading.Thread(target=send, args=(model, prompts,))
     sender_thread.start()
 
-    generate_image(model, 'dog')
     print("ready")
 
 
