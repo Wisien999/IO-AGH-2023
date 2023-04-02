@@ -1,14 +1,16 @@
 import React, {useMemo} from "react";
-import {addAuthToken} from "../utils/fetchApi";
+import {addAuthToken, removeAuthToken} from "../utils/fetchApi";
 
 const NicknameContext = React.createContext<{
     nickname: string | undefined;
     setNickname: React.Dispatch<React.SetStateAction<string | undefined>>;
+    clearNickname: () => void;
 }>({
     nickname: undefined,
     setNickname: () => {
 
-    }
+    },
+    clearNickname: () => {}
 });
 
 export function useNickname() {
@@ -23,6 +25,11 @@ const getNicknameFromStorage = () => {
     return nickname || undefined;
 }
 
+const clearNickname = () => {
+    localStorage.removeItem('nickname');
+    removeAuthToken();
+}
+
 export default function NicknameProvider({children}: { children: React.ReactNode }) {
     const [nickname, setNickname] = React.useState<string | undefined>(getNicknameFromStorage());
 
@@ -32,6 +39,10 @@ export default function NicknameProvider({children}: { children: React.ReactNode
             setNickname(nickname);
             localStorage.setItem('nickname', nickname);
             addAuthToken(nickname);
+        },
+        clearNickname: () => {
+            clearNickname();
+            setNickname(undefined);
         }
     }), [nickname]);
 

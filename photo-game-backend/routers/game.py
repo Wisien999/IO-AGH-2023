@@ -1,13 +1,22 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from game_state_machine import *
 from typing import List
 from game_time import GameTime
+from common_model import User
 
 router = APIRouter(
     prefix="/api/game",
     tags=["game"]
 )
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
+
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    user = token
+    return user
 
 class ImageContent:
     image_id: str
@@ -41,9 +50,9 @@ class GameContent(BaseModel):
             ]
         )
 
+@router.post("")
 @router.post("/")
 def create_game():
-    
     return create_new_game()
 
 @router.get("/{game_id}")
@@ -74,27 +83,34 @@ def get_current_time(game_id: str, round_id: int):
     games[game_id].rounds[round_id].time.update()
     return games[game_id].rounds[round_id].time.current
 
-class UserAction(BaseModel):
-    actions: dict[str, str]  # prompt id -> image id
 
 
 class MatchResult(BaseModel):
     is_correct: dict[str, bool]
     current_points: float
+    is_round_over: bool = False
+    has_next_round: bool = False
+    is_move_valid: bool = True
 
 
 @router.post("/{game_id}/{round_id}/match")
-async def match(game_id: str, round_id: int, user_action: UserAction):
+async def match(game_id: str, round_id: int, user_action: UserAction, current_user: User = Depends(get_current_user)):
     game_round = games[game_id].rounds[round_id]
-    for prompt, image_id in user_action.actions.items():
-        if image_id in game_round.image_to_prompt:
-            del game_round.image_to_prompt[image_id]
-        game_round.image_to_prompt = {k: v for k, v in games[game_id].rounds[round_id].image_to_prompt.items() if v != prompt}
 
-    for prompt, image_id in user_action.actions:
-        game_round.image_to_prompt[image_id] = prompt
+    is_round_over = game_round.is_round_over(user_action)
+    has_next_round = round_id + 1 < len(games[game_id].rounds)
+
+    for prompt_id, image_id in user_action.actions.items():
+        if prompt_id in game_round.prompt_to_image:
+            del game_round.prompt_to_image[prompt_id]
+        game_round.prompt_to_image = {k: v for k, v in game_round.prompt_to_image.items() if v != image_id}
+
+    for prompt, prompt_id in user_action.actions.items():
+        game_round.prompt_to_image[prompt] = prompt_id
 
     return MatchResult(
         is_correct=game_round.correction_map(),
-        current_points=game_round.points()
+        current_points=game_round.points(),
+        is_round_over=is_round_over,
+        has_next_round=has_next_round
     )

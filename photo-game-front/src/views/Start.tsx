@@ -38,13 +38,13 @@ function Start() {
     };
 
     return (
-        <Grid container justifyContent={"center"}>
+        <Grid container justifyContent={"center"} rowSpacing={1}>
             <Grid container>
-                <Grid item xs={6} >
+                <Grid item xs={6}>
                     <FormLabel>Enter your nickname:</FormLabel>
                 </Grid>
                 <Grid item xs={6} display={"flex"} justifyContent={"flex-end"}>
-                    <IconButton onClick={() => navigate('settings')}>
+                    <IconButton>
                         <SettingsIcon/>
                     </IconButton>
                 </Grid>
