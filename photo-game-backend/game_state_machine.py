@@ -9,7 +9,7 @@ from multiprocessing.connection import Listener, Client
 from common_model import CreateGameParams
 from fastapi import BackgroundTasks
 from game_time import GameTime
-import random
+from random import shuffle  
 
 def generate_unique_id(prefix: str, dict: Dict[str, str]) -> str:
     letters = string.ascii_lowercase
@@ -97,9 +97,10 @@ class Round:
             image_id += 1
 
     def generate_images(self, n_images: int):
-        random_order = shuffle(range(len(self.all_prompts)))
+        random_order = list(range(len(self.all_prompts)))
+        shuffle(random_order)
         prompts_values = [prompt_dictionary[self.all_prompts[i]] for i in random_order]
-
+        
         images = generate_images_for_round(prompts_values)
         
         self.all_images = images
