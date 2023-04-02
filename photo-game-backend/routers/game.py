@@ -16,7 +16,9 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     user = token
-    return user
+    if user is None:
+        return None
+    return user.split(",")[0]
 
 class ImageContent:
     image_id: str
@@ -29,7 +31,7 @@ class PromptContent(BaseModel):
 
     @staticmethod
     def from_prompt_id(prompt_id: str):
-        return PromptContent(prompt_id=prompt_id, text=mock_prompt_dictionary[prompt_id])
+        return PromptContent(prompt_id=prompt_id, text=prompt_dictionary[prompt_id])
 
 class RoundContent(BaseModel):
     prompts: List[PromptContent]
@@ -61,8 +63,8 @@ class GameContent(BaseModel):
         )
 
 @router.post("/")
-def create_game():
-    return create_new_game()
+async def create_game(game_params: CreateGameParams):
+    return await create_new_game(game_params)
 
 @router.get("/{game_id}")
 def get_all_game_data(game_id: str):

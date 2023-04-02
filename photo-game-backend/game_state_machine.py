@@ -1,9 +1,12 @@
+from typing import Dict
+
 from fastapi import HTTPException
 import random
 import string
 from pydantic import BaseModel
 import asyncio
 from text_prompt_generator import get_prompts
+from common_model import CreateGameParams
 
 def generate_unique_id(prefix: str, dict: Dict[str, str]) -> str:
     letters = string.ascii_lowercase
@@ -24,8 +27,8 @@ async def generate_images_for_round(prompts: list[str]) -> list[str]:
     return []
 
 class Round:
-    def __init__(self, solution: dict[str, str] = None):
-        self.solution: dict[str, str] = solution or dict()          # prompt -> image
+    def __init__(self):
+        self.solution: dict[str, str] = None          # prompt -> image
         self.round_vaidator = None
         self.all_prompts: list[str] = list()
         self.all_images: list[str] = list()
@@ -40,9 +43,6 @@ class Round:
         self.round_vaidator = validator
 
     def points(self) -> float:
-        if len(self.all_images) != len(self.all_prompts):
-            raise HTTPException(404)
-
         return sum([x for x in self.correction_map().values()]) / len(self.all_prompts)
 
     def is_round_over(self, action: UserAction) -> bool:
@@ -52,16 +52,14 @@ class Round:
 
     def generate_prompts(self, n_prompts: int, theme: str = None):
         new_prompts = get_prompts(n_prompts, theme)
-    
+
         prompts_for_game = []
         for prompt in new_prompts:
             prompt_id = generate_unique_id('pr-', prompts_for_game)
             prompts_for_game.append(prompt_id)
             prompt_dictionary[prompt_id] = prompt
 
-        prompts[game_id] = prompts_for_game
-
-    def generate_solution():
+    def generate_solution(self):
         for i in range(len(self.all_images)):
             self.solution[self.all_prompts[i]] = self.all_images[i]
 
@@ -85,11 +83,10 @@ class DeafulatRoundValidator:
         
 
 class GameState:
-    def __init__(self, rounds: list[Round]):
-        self.rounds: list[Round] = rounds
+    def __init__(self, game_params: CreateGameParams):
+        self.rounds: list[Round] = [Round() for _ in range(game_params.no_of_rounds)]
 
 
-mock_round = Round()
 
 mock_round_images = [
     'im-advjlgjlesa',
@@ -100,28 +97,18 @@ mock_round_images = [
 
 
 
-mock_round.solution = {p: i for p, i in zip(mock_round_prompts, mock_round_images)}
-mock_round.all_prompts = mock_round_prompts
-mock_round.all_images = mock_round_images
 
 mock_game_time_s = 10
 
-games: dict[str, GameState] = {
-    'gm-game0': GameState(
-        rounds=[mock_round]
-    )
-}
+games: dict[str, GameState] = dict()
 
-def create_new_game() -> str:
+async def create_new_game(game_params: CreateGameParams) -> str:
     game_id = generate_unique_id('gm-', games)
-    games[game_id] = GameState(rounds=[mock_round])
+
+    games[game_id] = GameState(game_params)
     for current_round in games[game_id].rounds:
-        current_round.generate_prompts()
+        current_round.generate_prompts(game_params.no_of_prompts, game_params.theme)
         current_round.set_validator(DeafulatRoundValidator(current_round))
-        asyncio.create_task(current_round.generate_images())
+        await current_round.generate_images(game_params.no_of_images)
 
     return game_id
-
-
-def get_points(game_id: str, round_id: int) -> int:
-    return games[game_id].rounds[round_id].points()
