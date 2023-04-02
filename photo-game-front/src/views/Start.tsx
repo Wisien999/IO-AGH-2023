@@ -12,6 +12,7 @@ function Start() {
     const navigate = useNavigate();
 
     const [nick, setNick] = useState('');
+    const [multiplayerText, setMultiplayerText] = useState('Multiplayer');
 
     const options = {
         'no_of_rounds': settingsContext.roundNumber,
@@ -69,16 +70,18 @@ function Start() {
             <Grid item xs={12} alignSelf={"stretch"}>
                 <Button
                     onClick={() => {
-                        setNickname(nick);
-                        navigate('/multiplayer', {
-                            state: {
-                                options
-                            }
-                        })
+                        // setNickname(nick);
+                        // navigate('/multiplayer', {
+                        //     state: {
+                        //         options
+                        //     }
+                        // })
+                        setMultiplayerText('Coming soon!')
                     }}
+                    disabled={multiplayerText !== 'Multiplayer'}
                     variant="contained"
                     fullWidth
-                >Multiplayer</Button>
+                >{multiplayerText}</Button>
             </Grid>
             <Outlet/>
         {/*</SettingsProvider>*/}
