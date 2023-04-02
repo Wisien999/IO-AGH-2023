@@ -1,6 +1,21 @@
-from fastapi import HTTPException
+import multiprocessing as mp
 import random
 import string
+from typing import List, Dict
+
+import torch
+from fastapi import HTTPException
+from min_dalle import MinDalle
+
+from image_generator import generate_image
+from text_prompt_generator import get_prompts
+from pydantic import BaseModel
+
+
+from image_generator import generate_image
+from text_prompt_generator import get_prompts
+
+
 from pydantic import BaseModel
 
 from common_model import CreateGameParams
@@ -14,13 +29,14 @@ class Round:
     def __init__(self, solution: dict[str, str] = None):
         self.solution: dict[str, str] = solution or dict()          # prompt -> image
         self.round_vaidator = None
-        self.all_prompts: set[str] = set()
-        self.all_images: set[str] = set()
-        self.prompt_to_image: dict[str, str] = dict()
         self.time = None
+        self.images_per_round = 4
+        self.prompts_per_round = 4
 
-    def correction_map(self) -> dict[str, str]:
-        return {prompt_id: self.solution[prompt_id] == self.prompt_to_image.get(prompt_id, '') for prompt_id in self.all_prompts}
+
+    def correction_map(self):
+        return {prompt_id: self.solution[prompt_id] == self.image_to_prompt.get(prompt_id, '') for prompt_id in
+                self.all_prompts}
 
     def set_validator(self, validator):
         self.round_vaidator = validator
@@ -39,13 +55,15 @@ class Round:
 
 class DeafulatRoundValidator:
     def __init__(self, round: Round):
-        self.round = round
-        self.images = {image_id: False for image_id in self.round.all_images}
-        
+        #self.round = round
+        #self.images = {image_id: False for image_id in self.round.all_images}
+        pass
+
     def validate(self, action: UserAction) -> bool:
-        for prompt_id, image_id in action.actions.items():
-            self.images[image_id] = True
-        return all(self.images.values())
+        #or prompt_id, image_id in action.actions.items():
+        #    self.images[image_id] = True
+        #return all(self.images.values())
+        return False
         
 
 class GameState:
@@ -54,47 +72,57 @@ class GameState:
 
 
 
+
+
 mock_round = Round()
-mock_round_prompts = [
-    'pr-01aa',
-    'pr-02aa',
-    'pr-03aa',
-    'pr-04aa'
-]
-mock_round_images = [
-    'im-advjlgjlesa',
-    'im-ajsofeaokae',
-    'im-ajsofesadae',
-    'im-ajsofesaade'
-]
-
-mock_prompt_dictionary = {
-    "pr-01aa": "some description 1",
-    "pr-02aa": "some description 2",
-    "pr-03aa": "some description 3",
-    "pr-04aa": "some description 4",
-}
-
-
-mock_round.solution = {p: i for p, i in zip(mock_round_prompts, mock_round_images)}
-mock_round.all_prompts = mock_round_prompts
-mock_round.all_images = mock_round_images
 
 mock_game_time_s = 10
 
 games: dict[str, GameState] = dict()
 
+images: Dict[str, List[str]] = {}  # game_id: [image1, image2, ...]
+prompts: Dict[str, Dict[str, str]] = {}  # game_id: [id:prompt1, id:prompt2, ...]
+
+def generate_unique_id(prefix: str, dict: Dict[str, str]) -> str:
+    letters = string.ascii_lowercase
+    new_id = None
+
+    while new_id is None or new_id in dict:
+        new_id = prefix + ''.join(random.choice(letters) for _ in range(6))
+
+    return new_id
 
 def create_new_game(game_params: CreateGameParams) -> str:
-    letters = string.ascii_lowercase
-    PREFIX = "gm-"
-    game_id = None
 
-    while game_id is None or game_id in games:
-        game_id = PREFIX + ''.join(random.choice(letters) for i in range(6))
-    
-    games[game_id] = GameState(game_params)
+    game_id = generate_unique_id('gm-', games)
+
+    games[game_id] = GameState(rounds=[mock_round])
+
+    images[game_id] = []
+    for current_round in games[game_id].rounds:
+        current_round.set_validator(DeafulatRoundValidator(current_round))
+    #mp.Process(target=generate_images_prompts, args=(game_id, images[game_id], 4, 4, "nature")).start()  # TODO change params
+
+    generate_images_prompts(game_id, images[game_id], 4, 4, "nature")
+
     for current_round in games[game_id].rounds:
         current_round.set_validator(DeafulatRoundValidator(current_round))
 
+
     return game_id
+
+
+def generate_images_prompts(game_id: str, image_list: List, n_prompts: int, n_images: int, theme: str = None) -> None:
+    new_prompts = get_prompts(n_prompts, theme)
+
+    prompts_for_game = {}
+    for prompt in new_prompts:
+        prompt_id = generate_unique_id('pr-', prompts_for_game)
+        prompts_for_game[prompt_id] = prompt
+
+
+    prompts[game_id] = prompts_for_game
+
+
+    for i in range(n_images):
+        image_list.append(generate_image(None, (list(prompts[game_id].values()))[i]))

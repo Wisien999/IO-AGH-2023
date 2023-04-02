@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from game_state_machine import *
@@ -10,7 +11,6 @@ router = APIRouter(
     prefix="/api/game",
     tags=["game"]
 )
-
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
@@ -28,12 +28,25 @@ class PromptContent(BaseModel):
     text: str
 
     @staticmethod
-    def from_prompt_id(prompt_id: str):
-        return PromptContent(prompt_id=prompt_id, text=mock_prompt_dictionary[prompt_id])
+    def from_prompt_id(game_id: str, prompt_id: str):
+        return PromptContent(prompt_id=prompt_id, text=prompts[game_id][prompt_id])
 
 class RoundContent(BaseModel):
     prompts: List[PromptContent]
     images: List[str]
+
+    @staticmethod
+    def from_db(game_id: str, round_id: int):
+        current_round = games[game_id].rounds[round_id]
+        round_prompt_id_start = round_id * current_round.prompts_per_round
+        round_image_id_start = round_id * current_round.images_per_round
+        round_prompt_id_end = round_prompt_id_start + current_round.prompts_per_round
+        round_image_id_end = round_image_id_start + current_round.images_per_round
+
+        return RoundContent(
+            prompts=[PromptContent.from_prompt_id(game_id, prompt_id) for prompt_id in prompts[game_id].keys()][round_prompt_id_start:round_prompt_id_end],
+            images=[image_id for image_id in images[game_id].keys()][round_image_id_start:round_image_id_end]
+        )
 
 class GameContent(BaseModel):
     rounds: List[RoundContent]
@@ -43,10 +56,7 @@ class GameContent(BaseModel):
         game = games[game_id]
         return GameContent(
             rounds=[
-                RoundContent(
-                    prompts=[PromptContent.from_prompt_id(p) for p in round.all_prompts],
-                    images=list(round.all_images)
-                ) for round in game.rounds
+                RoundContent.from_db(game_id, round_id) for round_id in range(len(game.rounds))
             ]
         )
 
@@ -55,20 +65,30 @@ class GameContent(BaseModel):
 def create_game(game_params: CreateGameParams):
     return create_new_game(game_params)
 
+mock_images_per_round = 4
+
 @router.get("/{game_id}")
 def get_all_game_data(game_id: str):
+    check_images_ready_for_round(mock_images_per_round, len(games[game_id].rounds) - 1)
     return GameContent.from_db(game_id)
+
+def check_images_ready_for_round(count: int, round_id: int):
+    if len(images[game_id]) < images_count*(round_id+1):
+        raise HTTPException(418, 'Images are not ready')
 
 @router.get("/{game_id}/{round_id}")
 def get_round_all_data(game_id: str, round_id: int):
+    check_images_ready_for_round(mock_images_per_round, round_id)
     return GameContent.from_db(game_id).rounds[round_id]
 
 @router.get("/{game_id}/{round_id}/prompts")
 def get_rounds_prompts(game_id: str, round_id: int):
+    check_images_ready_for_round(4, round_id)
     return GameContent.from_db(game_id).rounds[round_id].prompts
 
 @router.get("/{game_id}/{round_id}/images")
 def get_rounds_images(game_id: str, round_id: int):
+    check_images_ready_for_round(mock_images_per_round, round_id)
     return GameContent.from_db(game_id).rounds[round_id].images
 
 @router.post("/{game_id}/{round_id}/ready")
