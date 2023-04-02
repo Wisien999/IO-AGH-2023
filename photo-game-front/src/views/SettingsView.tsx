@@ -1,10 +1,10 @@
 import React, {useContext, useState} from 'react';
 import {Button, Dialog, DialogContent, DialogTitle, FormLabel, Grid, TextField} from "@mui/material";
 import {useNavigate} from "react-router-dom";
-import {settingsContext} from "./Start";
+import {SettingsContext} from "../contexts/SettingsContext";
 
 export default function SettingsView() {
-    const startContext = useContext(settingsContext);
+    const startContext = useContext(SettingsContext);
 
     const navigate = useNavigate();
 
