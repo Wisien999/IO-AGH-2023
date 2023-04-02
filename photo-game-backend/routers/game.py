@@ -64,7 +64,7 @@ class GameContent(BaseModel):
 
 @router.post("/")
 def create_game(game_params: CreateGameParams, background_tasks: BackgroundTasks):
-    return await create_new_game(game_params, background_tasks)
+    return create_new_game(game_params, background_tasks)
 
 @router.get("/{game_id}")
 def get_all_game_data(game_id: str):
