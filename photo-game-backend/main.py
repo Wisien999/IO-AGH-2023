@@ -22,7 +22,6 @@ app.add_middleware(
 app.include_router(images_router)
 app.include_router(game_router)
 app.include_router(room_router)
-os.system("python3 image_generator.py")
 
 if os.getenv("PHOTO_GAME_DOCKER") == "true":
     sf = StaticFiles(directory="./website")

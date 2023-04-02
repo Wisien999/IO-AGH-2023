@@ -1,7 +1,7 @@
 from datetime import datetime
 from min_dalle import MinDalle
 from multiprocessing.connection import Listener
-import multiprocessing as mp
+import threading
 import torch
 from queue import Queue
 
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     listener_thread.start()
 
     # start the sender thread
-    sender_thread = threading.Thread(target=send, args=(model, prompt_queue,))
+    sender_thread = threading.Thread(target=send, args=(model, prompts,))
     sender_thread.start()
 
 
