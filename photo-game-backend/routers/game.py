@@ -123,9 +123,11 @@ async def match(game_id: str, round_id: int, user_action: UserAction, current_us
     is_round_over = game_round.is_round_over(user_action)
     has_next_round = round_id + 1 < len(games[game_id].rounds)
 
+    summary_points = sum(ro.points() for ro in games[game_id].rounds[:round_id + 1])
+
     return MatchResult(
         is_correct=game_round.correction_map(),
-        current_points=game_round.points(),
+        current_points=summary_points,
         is_round_over=is_round_over,
         has_next_round=has_next_round
     )
