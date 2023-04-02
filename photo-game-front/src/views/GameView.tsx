@@ -20,7 +20,6 @@ export default function GameView() {
     const [prompts, setPrompts] = React.useState<Record<string, string>>({});
     const [endTime, setEndTime] = React.useState<Date | undefined>();
     const [startTime, setStartTime] = React.useState<Date | undefined>();
-    const [currentPoints, setCurrentPoints] = React.useState<number>(0);
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
 
@@ -43,13 +42,11 @@ export default function GameView() {
             })
         });
 
-        setCurrentPoints(result.current_points);
-
         if (result.is_round_over) {
             const nextRound = result.has_next_round ? `/game/${gameId}/${parseInt(round || '0') + 1}` : '/gameover';
             navigate(nextRound, {
                 state: {
-                    points: currentPoints,
+                    points: result.current_points,
                 }
             });
         }
