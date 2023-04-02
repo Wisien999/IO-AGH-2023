@@ -69,6 +69,7 @@ export default function GameView() {
             }, {}),
         }
     }, {
+        retry: true,
         onSuccess: async (data) => {
             setImages(data.images);
             setPrompts(data.prompts);
@@ -85,7 +86,7 @@ export default function GameView() {
     });
 
     const renderContent = () => {
-        if (query.isFetching) {
+        if (query.isFetching || query.isError) {
             return <LoadingScreen/>;
         }
 
