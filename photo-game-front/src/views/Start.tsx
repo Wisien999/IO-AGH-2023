@@ -1,26 +1,67 @@
 import {Outlet, useNavigate} from "react-router-dom";
-import {Button, FormControl, FormLabel, Grid, IconButton, TextField} from "@mui/material";
+import {Button, FormLabel, Grid, IconButton, TextField} from "@mui/material";
 import {createContext, useMemo, useState} from "react";
 import {addAuthToken, fetchApi} from "../utils/fetchApi";
 import {useNickname} from '../contexts/NicknameContext'
 import SettingsIcon from '@mui/icons-material/Settings';
 
-const settingsContext = createContext('')
+const settingsContext = createContext<{
+    roundNumber: number;
+    timeLimit: number;
+    imageNumber: number;
+    promptNumber: number;
+    setRoundNumber: (r: number) => void;
+    setTimeLimit: (r: number) => void;
+    setImageNumber: (r: number) => void;
+    setPromptNumber: (r: number) => void;
+
+}>({
+    roundNumber: 1,
+    timeLimit: 20,
+    imageNumber: 4,
+    promptNumber: 4,
+    setRoundNumber() {},
+    setTimeLimit() {},
+    setImageNumber() {},
+    setPromptNumber() {}
+})
 
 function Start() {
     const navigate = useNavigate();
 
     const [nick, setNick] = useState('');
-    const [roundNumber, setRoundNumber] = useState('');
+    const [roundNumber, setRoundNumber] = useState(1);
+    const [timeLimit, setTimeLimit] = useState(20);
+    const [imageNumber, setImageNumber] = useState(4);
+    const [promptNumber, setPromptNumber] = useState(4);
+
     const state = useMemo(() => ({
         roundNumber,
+        timeLimit,
+        imageNumber,
+        promptNumber,
         setRoundNumber: (roundNumber) => {
             setRoundNumber(roundNumber);
             localStorage.setItem('roundNumber', roundNumber);
-            addAuthToken(roundNumber);
+            addAuthToken(nick);
+        },
+        setTimeLimit: (timeLimit) => {
+            setTimeLimit(timeLimit);
+            localStorage.setItem('timeLimit', timeLimit);
+            addAuthToken(nick);
+        },
+        setImageNumber: (imageNumber) => {
+            setImageNumber(imageNumber);
+            localStorage.setItem('imageNumber', imageNumber);
+            addAuthToken(nick);
+        },
+        setPromptNumber: (promptNumber) => {
+            setPromptNumber(promptNumber);
+            localStorage.setItem('promptNumber', promptNumber);
+            addAuthToken(nick);
         }
-    }), [roundNumber]);
-    const [timeLimit, setTimeLimit] = useState('');
+    }), [roundNumber, timeLimit, imageNumber, promptNumber]);
+
     const {setNickname} = useNickname();
 
     const handleClick = async (event: { preventDefault: () => void; }) => {
@@ -29,9 +70,17 @@ function Start() {
         // nickname
         setNickname(nick);
 
+        const options = {
+            'no_of_rounds': roundNumber,
+            'no_of_images': imageNumber,
+            'no_of_prompts': promptNumber,
+            'round_seconds': timeLimit
+        }
+
         // get game id
         const r = await fetchApi('/game', {
             method: 'POST',
+            body: JSON.stringify(options)
         });
 
         navigate("/game/" + r);
@@ -44,7 +93,7 @@ function Start() {
                     <FormLabel>Enter your nickname:</FormLabel>
                 </Grid>
                 <Grid item xs={6} display={"flex"} justifyContent={"flex-end"}>
-                    <IconButton>
+                    <IconButton onClick={() => navigate('settings')}>
                         <SettingsIcon/>
                     </IconButton>
                 </Grid>
@@ -64,9 +113,9 @@ function Start() {
                     fullWidth={true}
                 >Start the game</Button>
             </Grid>
-        {/*<settingsContext.Provider value={state}>*/}
-        {/*    <Outlet/>*/}
-        {/*</settingsContext.Provider>*/}
+        <settingsContext.Provider value={state}>
+            <Outlet/>
+        </settingsContext.Provider>
         </Grid>
     )
 }
