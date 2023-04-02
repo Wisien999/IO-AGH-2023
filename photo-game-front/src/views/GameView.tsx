@@ -69,6 +69,7 @@ export default function GameView() {
             }, {}),
         }
     }, {
+        retry: true,
         onSuccess: async (data) => {
             setImages(data.images);
             setPrompts(data.prompts);
