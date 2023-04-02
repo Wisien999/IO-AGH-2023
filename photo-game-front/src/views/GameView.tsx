@@ -70,6 +70,7 @@ export default function GameView() {
         }
     }, {
         retry: true,
+        retryDelay: 1000,
         onSuccess: async (data) => {
             setImages(data.images);
             setPrompts(data.prompts);
