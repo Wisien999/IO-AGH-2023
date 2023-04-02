@@ -99,13 +99,12 @@ class Round:
     def generate_images(self, n_images: int, game_params: CreateGameParams):
         random_order = list(range(len(self.all_prompts)))
         shuffle(random_order)
-        prompts_values = [prompt_dictionary[self.all_prompts[i]] for i in random_order]
+        prompts_values = [prompt_dictionary[self.all_prompts[i]] for i in random_order[0:n_images]]
 
-        prompts_values = [prompt_dictionary[prompt_id] for prompt_id in self.all_prompts[0:n_images]]
         images = generate_images_for_round(prompts_values)
 
         self.all_images = images
-        self.generate_solution(random_order)
+        self.generate_solution(random_order[0:n_images])
         self.are_images_ready = True
         self.set_validator(DeafulatRoundValidator(self) if not game_params.perma_death else PermaDeathRoundValidator(self))
 
