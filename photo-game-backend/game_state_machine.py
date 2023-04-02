@@ -6,6 +6,8 @@ import string
 from pydantic import BaseModel
 import asyncio
 from text_prompt_generator import get_prompts
+from typing import List, Dict
+from multiprocessing.connection import Listener, Client
 from common_model import CreateGameParams
 
 def generate_unique_id(prefix: str, dict: Dict[str, str]) -> str:
@@ -23,12 +25,16 @@ class UserAction(BaseModel):
     actions: dict[str, str]  # prompt id -> image id
 
 
-async def generate_images_for_round(prompts: list[str]) -> list[str]:
-    return []
+async def generate_images_for_round(prompts: List[str]) -> List[str]:
+    address = ('localhost', 6000)
+    conn = Client(address, authkey=b'secret password')
+    conn.send(prompts)
+    images = conn.recv()
+    return images
 
 class Round:
     def __init__(self):
-        self.solution: dict[str, str] = None          # prompt -> image
+        self.solution: dict[str, str] = dict()          # prompt -> image
         self.round_vaidator = None
         self.all_prompts: list[str] = list()
         self.all_images: list[str] = list()
