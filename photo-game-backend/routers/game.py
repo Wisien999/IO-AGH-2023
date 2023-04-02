@@ -43,6 +43,7 @@ class GameContent(BaseModel):
     @staticmethod
     def from_db(game_id: str):
         game = games[game_id]
+
         return GameContent(
             rounds=[
                 RoundContent(
@@ -63,6 +64,7 @@ def get_all_game_data(game_id: str):
 
 @router.get("/{game_id}/{round_id}")
 def get_round_all_data(game_id: str, round_id: int):
+
     return GameContent.from_db(game_id).rounds[round_id]
 
 @router.get("/{game_id}/{round_id}/prompts")
@@ -99,7 +101,7 @@ class MatchResult(BaseModel):
 async def match(game_id: str, round_id: int, user_action: UserAction, current_user: User = Depends(get_current_user)):
     game_round = games[game_id].rounds[round_id]
 
-    is_round_over = game_round.is_round_over(user_action)
+    is_round_over = game_round.is_round_over(user_action) or game_round.is_timeout()
     has_next_round = round_id + 1 < len(games[game_id].rounds)
 
     for prompt_id, image_id in user_action.actions.items():

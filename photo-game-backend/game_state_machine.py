@@ -34,6 +34,11 @@ class Round:
             return False
         return self.round_vaidator.validate(action)
 
+    def is_timeout(self):
+        if self.time is None:
+            return False
+        return self.time.is_timeout()
+
 
 class DeafulatRoundValidator:
     def __init__(self, round: Round):
