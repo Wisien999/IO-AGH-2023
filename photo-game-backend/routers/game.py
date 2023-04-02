@@ -16,7 +16,9 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     user = token
-    return user
+    if user is None:
+        return None
+    return user.split(",")[0]
 
 class ImageContent:
     image_id: str
