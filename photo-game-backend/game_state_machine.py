@@ -53,13 +53,15 @@ class Round:
 
 class DeafulatRoundValidator:
     def __init__(self, round: Round):
-        self.round = round
-        self.images = {image_id: False for image_id in self.round.all_images}
-        
+        #self.round = round
+        #self.images = {image_id: False for image_id in self.round.all_images}
+        pass
+
     def validate(self, action: UserAction) -> bool:
-        for prompt_id, image_id in action.actions.items():
-            self.images[image_id] = True
-        return all(self.images.values())
+        #or prompt_id, image_id in action.actions.items():
+        #    self.images[image_id] = True
+        #return all(self.images.values())
+        return False
         
 
 class GameState:
@@ -67,13 +69,7 @@ class GameState:
         self.rounds: list[Round] = rounds
 
 
-model = MinDalle(
-    models_root='./pretrained',
-    dtype=torch.float16,
-    device='cuda',
-    is_mega=False,
-    is_reusable=True
-)
+
 
 mock_round = Round()
 
@@ -106,7 +102,9 @@ def create_new_game() -> GameState:
     images[game_id] = []
     for current_round in games[game_id].rounds:
         current_round.set_validator(DeafulatRoundValidator(current_round))
-    mp.Process(game_id, target=generate_images_prompts, args=(images[game_id], 4, 4, "nature")).start()  # TODO change params
+    #mp.Process(target=generate_images_prompts, args=(game_id, images[game_id], 4, 4, "nature")).start()  # TODO change params
+
+    generate_images_prompts(game_id, images[game_id], 4, 4, "nature")
 
     for current_round in games[game_id].rounds:
         current_round.set_validator(DeafulatRoundValidator(current_round))
@@ -126,5 +124,6 @@ def generate_images_prompts(game_id: str, image_list: List, n_prompts: int, n_im
     
     prompts[game_id] = prompts_for_game
 
+
     for i in range(n_images):
-        image_list.append(generate_image(model, prompts[i]))
+        image_list.append(generate_image(None, (list(prompts[game_id].values()))[i]))
