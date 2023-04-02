@@ -4,7 +4,7 @@ import {useContext, useState} from "react";
 import {fetchApi} from "../utils/fetchApi";
 import {useNickname} from '../contexts/NicknameContext'
 import SettingsIcon from '@mui/icons-material/Settings';
-import {SettingsContext, SettingsProvider} from "../contexts/SettingsContext";
+import {SettingsContext} from "../contexts/SettingsContext";
 
 function Start() {
     const settingsContext = useContext(SettingsContext);

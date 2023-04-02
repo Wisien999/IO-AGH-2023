@@ -1,9 +1,9 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import {Box, Container, useTheme} from '@mui/material';
 import {Outlet} from 'react-router-dom';
 import NicknameProvider from "./contexts/NicknameContext";
 import {SnackbarProvider} from "notistack";
-import {SettingsContext, SettingsProvider} from "./contexts/SettingsContext";
+import {SettingsProvider} from "./contexts/SettingsContext";
 
 function App() {
     const theme = useTheme();
