@@ -35,6 +35,16 @@ class RoundContent(BaseModel):
     prompts: List[PromptContent]
     images: List[str]
 
+    @staticmethod
+    def from_round(round: Round):
+        if not round.are_images_ready:
+            raise HTTPException(418, "Images are not ready yet")
+        
+        return RoundContent(
+            prompts=[PromptContent.from_prompt_id(p) for p in round.all_prompts],
+            images=list(round.all_images)
+        )
+
 class GameContent(BaseModel):
     rounds: List[RoundContent]
 
@@ -50,7 +60,6 @@ class GameContent(BaseModel):
             ]
         )
 
-@router.post("")
 @router.post("/")
 def create_game():
     return create_new_game()
