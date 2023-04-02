@@ -120,7 +120,7 @@ async def match(game_id: str, round_id: int, user_action: UserAction, current_us
     for prompt, prompt_id in user_action.actions.items():
         game_round.prompt_to_image[prompt] = prompt_id
 
-    is_round_over = game_round.is_round_over(user_action)
+    is_round_over = game_round.is_round_over(user_action) or game_round.is_timeout()
     has_next_round = round_id + 1 < len(games[game_id].rounds)
 
     summary_points = sum(ro.points() for ro in games[game_id].rounds[:round_id + 1])
