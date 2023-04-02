@@ -113,7 +113,7 @@ class PermaDeathRoundValidator:
                 if not cm[prompt_id]:
                     return True
 
-        return False
+        return all(self.images.values())
 
 
 class DeafulatRoundValidator:
