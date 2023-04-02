@@ -15,8 +15,13 @@ from pydantic import BaseModel
 from image_generator import generate_image
 from text_prompt_generator import get_prompts
 
+
+from pydantic import BaseModel
+
+
 class UserAction(BaseModel):
     actions: dict[str, str]  # prompt id -> image id
+
 
 class Round:
     def __init__(self, solution: dict[str, str] = None):
@@ -27,10 +32,9 @@ class Round:
         self.prompts_per_round = 4
 
 
-     def correction_map(self):
+    def correction_map(self):
         return {prompt_id: self.solution[prompt_id] == self.image_to_prompt.get(prompt_id, '') for prompt_id in
                 self.all_prompts}
-
 
     def set_validator(self, validator):
         self.round_vaidator = validator
@@ -98,14 +102,20 @@ def create_new_game() -> GameState:
     game_id = generate_unique_id('gm-', games)
 
     games[game_id] = GameState(rounds=[mock_round])
+
     images[game_id] = []
     for current_round in games[game_id].rounds:
         current_round.set_validator(DeafulatRoundValidator(current_round))
-    mp.Process(target=generate_images_prompts, args=(images[game_id], 4, 4, "nature")).start()  # TODO change params
+    mp.Process(game_id, target=generate_images_prompts, args=(images[game_id], 4, 4, "nature")).start()  # TODO change params
+
+    for current_round in games[game_id].rounds:
+        current_round.set_validator(DeafulatRoundValidator(current_round))
+
+
     return game_id
 
 
-def generate_images_prompts(image_list: List, n_prompts: int, n_images: int, theme: str = None) -> None:
+def generate_images_prompts(game_id: str, image_list: List, n_prompts: int, n_images: int, theme: str = None) -> None:
     new_prompts = get_prompts(n_prompts, theme)
     
     prompts_for_game = {}

@@ -1,9 +1,11 @@
+
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from game_state_machine import *
 from typing import List
 from game_time import GameTime
+from common_model import User
 
 router = APIRouter(
     prefix="/api/game",
