@@ -1,3 +1,5 @@
+from typing import Dict
+
 from fastapi import HTTPException
 import random
 import string
@@ -25,8 +27,8 @@ async def generate_images_for_round(prompts: list[str]) -> list[str]:
     return []
 
 class Round:
-    def __init__(self, solution: dict[str, str] = None):
-        self.solution: dict[str, str] = solution or dict()          # prompt -> image
+    def __init__(self):
+        self.solution: dict[str, str] = None          # prompt -> image
         self.round_vaidator = None
         self.all_prompts: list[str] = list()
         self.all_images: list[str] = list()
@@ -57,9 +59,7 @@ class Round:
             prompts_for_game.append(prompt_id)
             prompt_dictionary[prompt_id] = prompt
 
-        prompts[game_id] = prompts_for_game
-
-    def generate_solution():
+    def generate_solution(self):
         for i in range(len(self.all_images)):
             self.solution[self.all_prompts[i]] = self.all_images[i]
 
@@ -84,10 +84,9 @@ class DeafulatRoundValidator:
 
 class GameState:
     def __init__(self, game_params: CreateGameParams):
-        self.rounds: list[Round] = [Round(dict()) for _ in range(game_params.no_of_rounds)]
+        self.rounds: list[Round] = [Round() for _ in range(game_params.no_of_rounds)]
 
 
-mock_round = Round()
 
 mock_round_images = [
     'im-advjlgjlesa',
@@ -98,36 +97,18 @@ mock_round_images = [
 
 
 
-mock_round.solution = {p: i for p, i in zip(mock_round_prompts, mock_round_images)}
-mock_round.all_prompts = mock_round_prompts
-mock_round.all_images = mock_round_images
 
 mock_game_time_s = 10
 
-games: dict[str, GameState] = {
-    'gm-game0': GameState(
-        rounds=[mock_round]
-    )
-}
+games: dict[str, GameState] = dict()
 
-def create_new_game() -> str:
+def create_new_game(game_params: CreateGameParams) -> str:
     game_id = generate_unique_id('gm-', games)
-    games[game_id] = GameState(rounds=[mock_round])
-
-    while game_id is None or game_id in games:
-        game_id = PREFIX + ''.join(random.choice(letters) for i in range(6))
-
-    complete_no_of_images = game_params.no_of_images * game_params.no_of_rounds
-    complete_no_of_prompts = game_params.no_of_prompts * game_params.no_of_rounds
 
     games[game_id] = GameState(game_params)
     for current_round in games[game_id].rounds:
-        current_round.generate_prompts()
+        current_round.generate_prompts(game_params.no_of_prompts, game_params.theme)
         current_round.set_validator(DeafulatRoundValidator(current_round))
-        asyncio.create_task(current_round.generate_images())
+        asyncio.create_task(current_round.generate_images(game_params.no_of_images))
 
     return game_id
-
-
-def get_points(game_id: str, round_id: int) -> int:
-    return games[game_id].rounds[round_id].points()

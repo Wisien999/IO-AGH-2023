@@ -5,7 +5,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 import uuid
 
-from common_model import User
+from common_model import User, CreateGameParams
 from game_state_machine import create_new_game
 from routers.game import get_current_user
 
@@ -34,9 +34,11 @@ game_for_room: dict[str, str] = dict()
 
 @router.post("")
 @router.post("/")
-async def create_room() -> CreateRoomResponse:
+async def create_room(params: CreateGameParams) -> CreateRoomResponse:
     room_id = f"ri-{uuid.uuid4()}"
     rooms[room_id] = Room(users=set())
+    gameid = create_new_game(params)
+    game_for_room[room_id] = gameid
     return CreateRoomResponse(roomid=room_id)
 
 
@@ -72,9 +74,7 @@ async def start_game(roomid: str):
         raise HTTPException(status_code=404, detail="room not found")
     room = rooms[roomid]
     del rooms[roomid]
-    gameid = create_new_game()
-    game_for_room[roomid] = gameid
-    return gameid
+    return game_for_room[roomid]
 
 @router.get("/{roomid}/game_ready")
 async def is_game_ready(roomid: str):
