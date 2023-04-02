@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, BackgroundTasks
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from game_state_machine import *
@@ -31,11 +31,21 @@ class PromptContent(BaseModel):
 
     @staticmethod
     def from_prompt_id(prompt_id: str):
-        return PromptContent(prompt_id=prompt_id, text=mock_prompt_dictionary[prompt_id])
+        return PromptContent(prompt_id=prompt_id, text=prompt_dictionary[prompt_id])
 
 class RoundContent(BaseModel):
     prompts: List[PromptContent]
     images: List[str]
+
+    @staticmethod
+    def from_round(round: Round):
+        if not round.are_images_ready:
+            raise HTTPException(418, "Images are not ready yet")
+        
+        return RoundContent(
+            prompts=[PromptContent.from_prompt_id(p) for p in round.all_prompts],
+            images=list(round.all_images)
+        )
 
 class GameContent(BaseModel):
     rounds: List[RoundContent]
@@ -46,17 +56,13 @@ class GameContent(BaseModel):
 
         return GameContent(
             rounds=[
-                RoundContent(
-                    prompts=[PromptContent.from_prompt_id(p) for p in round.all_prompts],
-                    images=list(round.all_images)
-                ) for round in game.rounds
+                RoundContent.from_round(round) for round in game.rounds
             ]
         )
 
-@router.post("")
 @router.post("/")
-def create_game():
-    return create_new_game()
+def create_game(game_params: CreateGameParams, background_tasks: BackgroundTasks):
+    return create_new_game(game_params, background_tasks)
 
 @router.get("/{game_id}")
 def get_all_game_data(game_id: str):
@@ -77,13 +83,16 @@ def get_rounds_images(game_id: str, round_id: int):
 
 @router.post("/{game_id}/{round_id}/ready")
 def start_game_timer(game_id: str, round_id: int):
-    games[game_id].rounds[round_id].time = GameTime.from_current_time(mock_game_time_s)
+    if games[game_id].rounds[round_id].time is None:
+        games[game_id].rounds[round_id].start_timer()
     return games[game_id].rounds[round_id].time
 
 @router.get("/{game_id}/{round_id}/time")
 def get_current_time(game_id: str, round_id: int):
+    if game_id not in games:
+        raise HTTPException(404, "Game not found")
     if games[game_id].rounds[round_id].time is None:
-        games[game_id].rounds[round_id].time = GameTime.from_current_time(mock_game_time_s)
+        games[game_id].rounds[round_id].start_timer()
     games[game_id].rounds[round_id].time.update()
     return games[game_id].rounds[round_id].time.current
 
@@ -101,9 +110,7 @@ class MatchResult(BaseModel):
 async def match(game_id: str, round_id: int, user_action: UserAction, current_user: User = Depends(get_current_user)):
     game_round = games[game_id].rounds[round_id]
 
-    is_round_over = game_round.is_round_over(user_action) or game_round.is_timeout()
-    has_next_round = round_id + 1 < len(games[game_id].rounds)
-
+    # update state machine
     for prompt_id, image_id in user_action.actions.items():
         if prompt_id in game_round.prompt_to_image:
             del game_round.prompt_to_image[prompt_id]
@@ -111,6 +118,9 @@ async def match(game_id: str, round_id: int, user_action: UserAction, current_us
 
     for prompt, prompt_id in user_action.actions.items():
         game_round.prompt_to_image[prompt] = prompt_id
+
+    is_round_over = game_round.is_round_over(user_action)
+    has_next_round = round_id + 1 < len(games[game_id].rounds)
 
     return MatchResult(
         is_correct=game_round.correction_map(),

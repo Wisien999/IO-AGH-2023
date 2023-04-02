@@ -19,4 +19,5 @@ def get_prompts(n=5, theme=None):
     )
     json_response = json.loads(response.choices[0].message.content)
     prompt_list = json_response["descriptions"]
+    # prompt_list = ['winter', 'summer', 'spring', 'autumn']
     return prompt_list

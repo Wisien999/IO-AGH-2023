@@ -1,14 +1,10 @@
 from datetime import datetime
 from min_dalle import MinDalle
+from multiprocessing.connection import Listener, Client
+import threading
+import torch
+from queue import Queue
 
-# import torch
-# model = MinDalle(
-#     models_root='./pretrained',
-#     dtype=torch.float16,
-#     device='cuda',
-#     is_mega=False,
-#     is_reusable=True
-# )
 def generate_image(model: MinDalle, prompt: str) -> str:
     image = model.generate_image(
         text=prompt,
@@ -22,5 +18,47 @@ def generate_image(model: MinDalle, prompt: str) -> str:
     )
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     image.save(f'images/{timestamp}.png')
-    return f'images/{timestamp}.png'
+    return f'{timestamp}.png'
+
+def listen(queue: Queue):
+    address = ('localhost', 6002)
+    listener = Listener(address, authkey=b'secret password')
+    while True:
+        conn = listener.accept()
+        print('connection accepted from', listener.last_accepted)
+        prompts, address = conn.recv()
+        print(f'Got prompts: {prompts}')
+        queue.put((prompts, address))
+
+def send(model: MinDalle, queue: Queue):
+    while True:
+        prompts, address = queue.get(block=True)
+        pictures = []
+        for prompt in prompts:
+            print(f'Generating image for prompt: {prompt}')
+            pictures.append(generate_image(model, prompt))
+        client = Client(address, authkey=b'secret password')
+        print(f'Sending pictures: {pictures} to {address}')
+        client.send(pictures)
+        client.close()
+
+
+if __name__ == '__main__':
+    model = MinDalle(
+        models_root='./pretrained',
+        dtype=torch.float16,
+        device='cuda',
+        is_mega=False,
+        is_reusable=True,
+    )
+    prompts = Queue()
+    # start the listener thread
+    listener_thread = threading.Thread(target=listen, args=(prompts,))
+    listener_thread.start()
+
+    print("ready")
+    send(model, prompts)
+
+
+
 
