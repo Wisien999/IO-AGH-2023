@@ -11,6 +11,7 @@ import {parseISO} from 'date-fns';
 import eventEmitters from "../eventEmitters";
 import {ImageMatchEvent, ImageMatchEventParams} from "../eventEmitters/events/ImageMatchEvent";
 import TimerView from "./TimerView";
+import {useSnackbar} from "notistack";
 
 export default function GameView() {
     const {gameId, round} = useParams<{ gameId: string; round: string }>();
@@ -21,6 +22,7 @@ export default function GameView() {
     const [startTime, setStartTime] = React.useState<Date | undefined>();
     const [currentPoints, setCurrentPoints] = React.useState<number>(0);
     const navigate = useNavigate();
+    const { enqueueSnackbar } = useSnackbar();
 
 
     const sendPromptMatch = async (image?: string, prompt?: string): Promise<boolean> => {
@@ -115,6 +117,10 @@ export default function GameView() {
                                         ...prev,
                                     }
                                 })
+                            } else {
+                                enqueueSnackbar('Invalid move', {
+                                    variant: 'error',
+                                });
                             }
                         });
                     }
