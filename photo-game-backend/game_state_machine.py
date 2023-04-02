@@ -20,7 +20,7 @@ class UserAction(BaseModel):
     actions: dict[str, str]  # prompt id -> image id
 
 
-async def generate_images_for_round(n_images: int, prompts: list[str]) -> list[str]:
+async def generate_images_for_round(prompts: list[str]) -> list[str]:
     return []
 
 class Round:
@@ -66,7 +66,8 @@ class Round:
             self.solution[self.all_prompts[i]] = self.all_images[i]
 
     async def generate_images(self, n_images: int):
-        images = await generate_images_for_round(n_images, self.all_prompts)
+        prompts_values = [prompt_dictionary[prompt_id] for prompt_id in self.all_prompts[0:n_images]]
+        images = await generate_images_for_round(prompts_values)
         self.all_images = images
         self.generate_solution()
         self.are_images_ready = True
