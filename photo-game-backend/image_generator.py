@@ -8,7 +8,7 @@ from queue import Queue
 def generate_image(model: MinDalle, prompt: str) -> str:
     image = model.generate_image(
         text=prompt,
-        seed=2137,
+        seed=-1,
         grid_size=1,
         is_seamless=False,
         temperature=1,
