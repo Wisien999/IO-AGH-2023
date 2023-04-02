@@ -9,6 +9,7 @@ from multiprocessing.connection import Listener, Client
 from common_model import CreateGameParams
 from fastapi import BackgroundTasks
 from game_time import GameTime
+from random import shuffle
 
 def generate_unique_id(prefix: str, dict: Dict[str, str]) -> str:
     letters = string.ascii_lowercase
@@ -89,15 +90,22 @@ class Round:
 
         self.all_prompts = prompts_for_game
 
-    def generate_solution(self):
-        for i in range(len(self.all_images)):
-            self.solution[self.all_prompts[i]] = self.all_images[i]
+    def generate_solution(self, random_order: List[int]):
+        image_id = 0
+        for i in random_order:
+            self.solution[self.all_prompts[i]] = self.all_images[image_id]
+            image_id += 1
 
     def generate_images(self, n_images: int, game_params: CreateGameParams):
+        random_order = list(range(len(self.all_prompts)))
+        shuffle(random_order)
+        prompts_values = [prompt_dictionary[self.all_prompts[i]] for i in random_order]
+
         prompts_values = [prompt_dictionary[prompt_id] for prompt_id in self.all_prompts[0:n_images]]
         images = generate_images_for_round(prompts_values)
+
         self.all_images = images
-        self.generate_solution()
+        self.generate_solution(random_order)
         self.are_images_ready = True
         self.set_validator(DeafulatRoundValidator(self) if not game_params.perma_death else PermaDeathRoundValidator(self))
 
@@ -142,6 +150,7 @@ class GameState:
 games: dict[str, GameState] = dict()
 
 def generate_images_for_round_task(current_round: Round, images_count: int, game_params: CreateGameParams):
+    current_round.generate_prompts(game_params.no_of_prompts, game_params.theme)
     current_round.generate_images(images_count, game_params)
 
 def create_new_game(game_params: CreateGameParams, background_tasks: BackgroundTasks) -> str:
