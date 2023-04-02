@@ -58,7 +58,9 @@ export default function GameView() {
     }
 
     const query = useQuery(['images'], async () => {
-        const result = await fetchApi(`/game/${gameId}/${round}`);
+        const result = await fetchApi(`/game/${gameId}/${round}`, {
+            timeout: 1000,
+        });
         return {
             images: result.images,
             prompts: result.prompts.reduce((acc, prompt) => {
@@ -69,6 +71,9 @@ export default function GameView() {
             }, {}),
         }
     }, {
+        retry: true,
+        retryDelay: 1000,
+
         onSuccess: async (data) => {
             setImages(data.images);
             setPrompts(data.prompts);
@@ -85,7 +90,7 @@ export default function GameView() {
     });
 
     const renderContent = () => {
-        if (query.isFetching) {
+        if (query.isFetching || query.isError) {
             return <LoadingScreen/>;
         }
 

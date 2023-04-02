@@ -1,5 +1,3 @@
-from typing import Dict
-
 from fastapi import HTTPException
 import random
 import string
@@ -10,6 +8,7 @@ from typing import List, Dict
 from multiprocessing.connection import Listener, Client
 from common_model import CreateGameParams
 from fastapi import BackgroundTasks
+from game_time import GameTime
 
 def generate_unique_id(prefix: str, dict: Dict[str, str]) -> str:
     letters = string.ascii_lowercase
@@ -27,7 +26,7 @@ class UserAction(BaseModel):
 
 
 def generate_images_for_round(prompts: List[str]) -> List[str]:
-    address = ('localhost', 6000)
+    address = ('localhost', 6002)
     address2 = ('localhost', 6001)
     print(prompts)
     conn = Client(address, authkey=b'secret password')
@@ -36,12 +35,13 @@ def generate_images_for_round(prompts: List[str]) -> List[str]:
     conn.send((prompts, listener.address))
     conn2 = listener.accept()
     images = conn2.recv()
+    print(f"Got images: {images}")
     conn.close()
     listener.close()
     return images
 
 class Round:
-    def __init__(self):
+    def __init__(self, game_params: CreateGameParams):
         self.solution: dict[str, str] = dict()          # prompt -> image
         self.round_vaidator = None
         self.all_prompts: list[str] = list()
@@ -49,6 +49,7 @@ class Round:
         self.prompt_to_image: dict[str, str] = dict()
         self.time = None
         self.are_images_ready = False
+        self.game_params = game_params
 
     def correction_map(self) -> dict[str, str]:
         return {prompt_id: self.solution[prompt_id] == self.prompt_to_image.get(prompt_id, '') for prompt_id in self.all_prompts}
@@ -63,6 +64,11 @@ class Round:
         if self.round_vaidator is None:
             return False
         return self.round_vaidator.validate(action)
+
+    def is_timeout(self):
+        if self.time is None:
+            return False
+        return self.time.is_timeout()
 
     def generate_prompts(self, n_prompts: int, theme: str = None):
         new_prompts = get_prompts(n_prompts, theme)
@@ -86,6 +92,8 @@ class Round:
         self.generate_solution()
         self.are_images_ready = True
 
+    def start_timer(self):
+        self.time = GameTime.from_current_time(self.game_params.round_seconds)
 
 class DeafulatRoundValidator:
     def __init__(self, round: Round):
@@ -100,7 +108,7 @@ class DeafulatRoundValidator:
 
 class GameState:
     def __init__(self, game_params: CreateGameParams):
-        self.rounds: list[Round] = [Round() for _ in range(game_params.no_of_rounds)]
+        self.rounds: list[Round] = [Round(game_params) for _ in range(game_params.no_of_rounds)]
 
 
 
@@ -128,7 +136,6 @@ def create_new_game(game_params: CreateGameParams, background_tasks: BackgroundT
     for current_round in games[game_id].rounds:
         current_round.generate_prompts(game_params.no_of_prompts, game_params.theme)
         current_round.set_validator(DeafulatRoundValidator(current_round))
-        #background_tasks.add_task(generate_images_for_round_task, current_round, game_params.no_of_images)
-        generate_images_for_round_task(current_round, game_params.no_of_images)
+        background_tasks.add_task(generate_images_for_round_task, current_round, game_params.no_of_images)
 
     return game_id

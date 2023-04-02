@@ -53,6 +53,7 @@ class GameContent(BaseModel):
     @staticmethod
     def from_db(game_id: str):
         game = games[game_id]
+
         return GameContent(
             rounds=[
                 RoundContent.from_round(round) for round in game.rounds
@@ -69,6 +70,7 @@ def get_all_game_data(game_id: str):
 
 @router.get("/{game_id}/{round_id}")
 def get_round_all_data(game_id: str, round_id: int):
+
     return GameContent.from_db(game_id).rounds[round_id]
 
 @router.get("/{game_id}/{round_id}/prompts")
@@ -81,7 +83,7 @@ def get_rounds_images(game_id: str, round_id: int):
 
 @router.post("/{game_id}/{round_id}/ready")
 def start_game_timer(game_id: str, round_id: int):
-    games[game_id].rounds[round_id].time = GameTime.from_current_time(mock_game_time_s)
+    games[game_id].rounds[round_id].start_timer()
     return games[game_id].rounds[round_id].time
 
 @router.get("/{game_id}/{round_id}/time")
@@ -89,7 +91,7 @@ def get_current_time(game_id: str, round_id: int):
     if game_id not in games:
         raise HTTPException(404, "Game not found")
     if games[game_id].rounds[round_id].time is None:
-        games[game_id].rounds[round_id].time = GameTime.from_current_time(mock_game_time_s)
+        games[game_id].rounds[round_id].start_timer()
     games[game_id].rounds[round_id].time.update()
     return games[game_id].rounds[round_id].time.current
 

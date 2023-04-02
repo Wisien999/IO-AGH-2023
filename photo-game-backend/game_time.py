@@ -18,6 +18,7 @@ class GameTime(BaseModel):
     def update(self):
         self.current = str(datetime.now(timezone.utc))
 
-
+    def is_timeout(self):
+        return self.current >= self.end
 
      

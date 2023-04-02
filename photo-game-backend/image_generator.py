@@ -18,18 +18,17 @@ def generate_image(model: MinDalle, prompt: str) -> str:
     )
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     image.save(f'images/{timestamp}.png')
-    return f'images/{timestamp}.png'
+    return f'{timestamp}.png'
 
 def listen(queue: Queue):
-    address = ('localhost', 6000)
+    address = ('localhost', 6002)
     listener = Listener(address, authkey=b'secret password')
     while True:
         conn = listener.accept()
         print('connection accepted from', listener.last_accepted)
-        while True:
-            prompts, address = conn.recv()
-            print(f'Got prompts: {prompts}')
-            queue.put((prompts, address))
+        prompts, address = conn.recv()
+        print(f'Got prompts: {prompts}')
+        queue.put((prompts, address))
 
 def send(model: MinDalle, queue: Queue):
     while True:
