@@ -54,8 +54,9 @@ export default function GameView() {
         return result.is_move_valid;
     }
 
-    const query = useQuery(['images'], async () => {
-        const result = await fetchApi(`/game/${gameId}/${round}`, {
+    const query = useQuery(['images', { gameId, round }], async ({ queryKey }) => {
+        const [, { gameId: gId, round: rou }] = queryKey as any;
+        const result = await fetchApi(`/game/${gId}/${rou}`, {
             timeout: 1000,
         });
         return {

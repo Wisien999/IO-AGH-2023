@@ -8,9 +8,10 @@ import {Box, CircularProgress, Typography} from "@mui/material";
 export default function TimerView({ startDate, endDate, onTimeout}: { startDate: Date; endDate: Date; onTimeout: () => void }) {
     const totalTime = differenceInSeconds(endDate, startDate);
     const [secondsLeft, setSecondsLeft] = React.useState<number>(0);
-    const {gameId} = useParams<{ gameId: string }>();
-    const currentTimeQuery = useQuery(['current-time'], async () => {
-        const result = await fetchApi(`/game/${gameId}/0/time`);
+    const {gameId, round} = useParams<{ gameId: string; round: string; }>();
+    const currentTimeQuery = useQuery(['current-time', { gameId, round }], async ({ queryKey }) => {
+        const [, { gameId: gId, round: rou }] = queryKey as any;
+        const result = await fetchApi(`/game/${gId}/${rou}/time`);
         return parseISO(result);
     }, {
         onSuccess: (data) => {
