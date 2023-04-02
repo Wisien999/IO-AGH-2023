@@ -10,3 +10,4 @@ class CreateGameParams(BaseModel):
     no_of_images: int = 4
     no_of_prompts: int = 4
     round_seconds: int = 30
+    theme: str = "nature"

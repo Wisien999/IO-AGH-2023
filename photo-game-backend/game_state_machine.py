@@ -1,24 +1,14 @@
-import multiprocessing as mp
+import random
 import random
 import string
 from typing import List, Dict
 
-import torch
 from fastapi import HTTPException
-from min_dalle import MinDalle
-
-from image_generator import generate_image
-from text_prompt_generator import get_prompts
-from pydantic import BaseModel
-
-
-from image_generator import generate_image
-from text_prompt_generator import get_prompts
-
-
 from pydantic import BaseModel
 
 from common_model import CreateGameParams
+from image_generator import generate_image
+from text_prompt_generator import get_prompts
 
 
 class UserAction(BaseModel):
@@ -26,12 +16,19 @@ class UserAction(BaseModel):
 
 
 class Round:
-    def __init__(self, solution: dict[str, str] = None):
-        self.solution: dict[str, str] = solution or dict()          # prompt -> image
+    def __init__(self, game_id: str, round_idx: int, game_params: CreateGameParams):
+        start_prom = round_idx * game_params.no_of_prompts
+        start_img = round_idx * game_params.no_of_images
+        proms = list(prompts[game_id].keys())[start_prom]
+        imgs = images[game_id][start_img]
+
+        self.solution: dict[str, str] = {
+            prom_id: img_id for prom_id, img_id in zip(proms, imgs)
+        }
         self.round_vaidator = None
         self.time = None
-        self.images_per_round = 4
-        self.prompts_per_round = 4
+        self.images_per_round = game_params.no_of_images
+        self.prompts_per_round = game_params.no_of_prompts
 
 
     def correction_map(self):
@@ -74,7 +71,6 @@ class GameState:
 
 
 
-mock_round = Round()
 
 mock_game_time_s = 10
 
@@ -96,14 +92,17 @@ def create_new_game(game_params: CreateGameParams) -> str:
 
     game_id = generate_unique_id('gm-', games)
 
-    games[game_id] = GameState(rounds=[mock_round])
+    games[game_id] = GameState(game_params)
 
     images[game_id] = []
     for current_round in games[game_id].rounds:
         current_round.set_validator(DeafulatRoundValidator(current_round))
     #mp.Process(target=generate_images_prompts, args=(game_id, images[game_id], 4, 4, "nature")).start()  # TODO change params
 
-    generate_images_prompts(game_id, images[game_id], 4, 4, "nature")
+    summary_no_of_images = game_params.no_of_images * game_params.no_of_rounds
+    summary_no_of_prompts = game_params.no_of_prompts * game_params.no_of_rounds
+
+    generate_images_prompts(game_id, images[game_id], summary_no_of_images, summary_no_of_prompts, game_params.theme)
 
     for current_round in games[game_id].rounds:
         current_round.set_validator(DeafulatRoundValidator(current_round))
