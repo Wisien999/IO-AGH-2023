@@ -1,5 +1,5 @@
 import React from 'react';
-import {Grid, Paper, useTheme} from '@mui/material';
+import {Grid, Paper, Typography, useTheme} from '@mui/material';
 import ImagesView from "./ImagesView";
 import PromptsView from "./PromptsView";
 import {useQuery} from "@tanstack/react-query";
@@ -117,11 +117,37 @@ export default function GameView() {
                             />
                         )}
                     </Grid>
-                    <Grid item xs={12} sm={8}>
-                        <ImagesView images={images}/>
+                    <Grid item xs={12} sm={8} sx={{
+                        border: '1px solid',
+                        borderColor: theme.palette.secondary.main,
+                        borderRadius: theme.shape.borderRadius,
+                        padding: theme.spacing(1),
+                        borderRight: 'none',
+                    }}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <Typography variant="h6" color="primary" align="center">Images</Typography>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <ImagesView images={images}/>
+                            </Grid>
+                        </Grid>
+
                     </Grid>
-                    <Grid item xs={12} sm={4}>
-                        <PromptsView prompts={prompts}/>
+                    <Grid item xs={12} sm={4} sx={{
+                        border: '1px solid',
+                        borderColor: theme.palette.secondary.main,
+                        borderRadius: theme.shape.borderRadius,
+                        padding: theme.spacing(1),
+                    }}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <Typography variant="h6" color="primary" align="center">Prompts</Typography>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <PromptsView prompts={prompts}/>
+                            </Grid>
+                        </Grid>
                     </Grid>
                 </Grid>
             </DragDropContext>
