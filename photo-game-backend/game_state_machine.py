@@ -3,6 +3,8 @@ import random
 import string
 from pydantic import BaseModel
 
+from common_model import CreateGameParams
+
 
 class UserAction(BaseModel):
     actions: dict[str, str]  # prompt id -> image id
@@ -47,8 +49,9 @@ class DeafulatRoundValidator:
         
 
 class GameState:
-    def __init__(self, rounds: list[Round]):
-        self.rounds: list[Round] = rounds
+    def __init__(self, game_params: CreateGameParams):
+        self.rounds: list[Round] = [Round(dict()) for _ in range(game_params.no_of_rounds)]
+
 
 
 mock_round = Round()
@@ -79,13 +82,10 @@ mock_round.all_images = mock_round_images
 
 mock_game_time_s = 10
 
-games: dict[str, GameState] = {
-    'gm-game0': GameState(
-        rounds=[mock_round]
-    )
-}
+games: dict[str, GameState] = dict()
 
-def create_new_game() -> GameState:
+
+def create_new_game(game_params: CreateGameParams) -> str:
     letters = string.ascii_lowercase
     PREFIX = "gm-"
     game_id = None
@@ -93,11 +93,8 @@ def create_new_game() -> GameState:
     while game_id is None or game_id in games:
         game_id = PREFIX + ''.join(random.choice(letters) for i in range(6))
     
-    games[game_id] = GameState(rounds=[mock_round])
+    games[game_id] = GameState(game_params)
     for current_round in games[game_id].rounds:
         current_round.set_validator(DeafulatRoundValidator(current_round))
 
     return game_id
-
-def get_points(game_id: str, round_id: int) -> int:
-    return games[game_id].rounds[round_id].points()
