@@ -101,9 +101,7 @@ class MatchResult(BaseModel):
 async def match(game_id: str, round_id: int, user_action: UserAction, current_user: User = Depends(get_current_user)):
     game_round = games[game_id].rounds[round_id]
 
-    current_round = games[game_id].rounds[round_id]
-
-    is_round_over = game_round.is_round_over(user_action) or current_round.is_timeout()
+    is_round_over = game_round.is_round_over(user_action) or game_round.is_timeout()
     has_next_round = round_id + 1 < len(games[game_id].rounds)
 
     for prompt_id, image_id in user_action.actions.items():
