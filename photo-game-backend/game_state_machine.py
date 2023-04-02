@@ -102,13 +102,13 @@ mock_game_time_s = 10
 
 games: dict[str, GameState] = dict()
 
-def create_new_game(game_params: CreateGameParams) -> str:
+async def create_new_game(game_params: CreateGameParams) -> str:
     game_id = generate_unique_id('gm-', games)
 
     games[game_id] = GameState(game_params)
     for current_round in games[game_id].rounds:
         current_round.generate_prompts(game_params.no_of_prompts, game_params.theme)
         current_round.set_validator(DeafulatRoundValidator(current_round))
-        asyncio.create_task(current_round.generate_images(game_params.no_of_images))
+        await current_round.generate_images(game_params.no_of_images)
 
     return game_id
