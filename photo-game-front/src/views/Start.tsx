@@ -1,6 +1,6 @@
 import {Outlet, useNavigate} from "react-router-dom";
 import {Button, FormLabel, Grid, IconButton, TextField} from "@mui/material";
-import {useContext, useState} from "react";
+import {useContext, createContext, useMemo, useState} from "react";
 import {fetchApi} from "../utils/fetchApi";
 import {useNickname} from '../contexts/NicknameContext'
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -12,6 +12,14 @@ function Start() {
     const navigate = useNavigate();
 
     const [nick, setNick] = useState('');
+
+    const options = {
+        'no_of_rounds': settingsContext.roundNumber,
+        'no_of_images': settingsContext.imageNumber,
+        'no_of_prompts': settingsContext.promptNumber,
+        'round_seconds': settingsContext.timeLimit,
+        'theme': settingsContext.theme
+    }
     const {setNickname} = useNickname();
 
     const handleClick = async (event: { preventDefault: () => void; }) => {
@@ -19,14 +27,6 @@ function Start() {
 
         // nickname
         setNickname(nick);
-
-        const options = {
-            'no_of_rounds': settingsContext.roundNumber,
-            'no_of_images': settingsContext.imageNumber,
-            'no_of_prompts': settingsContext.promptNumber,
-            'round_seconds': settingsContext.timeLimit,
-            'theme': settingsContext.theme
-        }
 
         // get game id
         const r = await fetchApi('/game', {
@@ -65,6 +65,20 @@ function Start() {
                 >Start the game</Button>
             </Grid>
         <SettingsProvider>
+            <Grid item xs={12} alignSelf={"stretch"}>
+                <Button
+                    onClick={() => {
+                        setNickname(nick);
+                        navigate('/multiplayer', {
+                            state: {
+                                options
+                            }
+                        })
+                    }}
+                    variant="contained"
+                    fullWidth
+                >Multiplayer</Button>
+            </Grid>
             <Outlet/>
         </SettingsProvider>
         </Grid>
