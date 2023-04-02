@@ -122,6 +122,7 @@ class GameState:
 games: dict[str, GameState] = dict()
 
 def generate_images_for_round_task(current_round: Round, images_count: int):
+    current_round.generate_prompts(game_params.no_of_prompts, game_params.theme)
     current_round.generate_images(images_count)
 
 def create_new_game(game_params: CreateGameParams, background_tasks: BackgroundTasks) -> str:
@@ -129,7 +130,6 @@ def create_new_game(game_params: CreateGameParams, background_tasks: BackgroundT
 
     games[game_id] = GameState(game_params)
     for current_round in games[game_id].rounds:
-        current_round.generate_prompts(game_params.no_of_prompts, game_params.theme)
         background_tasks.add_task(generate_images_for_round_task, current_round, game_params.no_of_images)
 
     return game_id
