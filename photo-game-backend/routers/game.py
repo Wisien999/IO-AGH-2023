@@ -43,6 +43,7 @@ class GameContent(BaseModel):
     @staticmethod
     def from_db(game_id: str):
         game = games[game_id]
+
         return GameContent(
             rounds=[
                 RoundContent(
@@ -63,6 +64,9 @@ def get_all_game_data(game_id: str):
 
 @router.get("/{game_id}/{round_id}")
 def get_round_all_data(game_id: str, round_id: int):
+    current_round = games[game_id].rounds[round_id]
+    if current_round.is_timeout():
+        raise HTTPException(422, "Round is over")
     return GameContent.from_db(game_id).rounds[round_id]
 
 @router.get("/{game_id}/{round_id}/prompts")
