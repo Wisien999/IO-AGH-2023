@@ -5,13 +5,16 @@ This is a web application developed during the hackathon at AGH UST. The applica
 
 To use the application, follow these steps:
 
-1. Clone the repository to your local machine using `git clone https://github.com/username/projectname.git`.
+1. Clone the repository to your local machine using `git clone https://github.com/Wisien999/IO-AGH-2023`.
 2. Install Node.js on your machine. You can download it from the official website: https://nodejs.org/en/.
-3. Install the required Node.js packages by running `npm install` from the project directory.
-4. Add your OpaenAI API key to enviromental variable named 'OPENAI_API_KEY'.
-5. Start the application by running `npm start` from the project directory. The website should open automatically in your default browser. If it doesn't, you can manually access it at `http://localhost:3000`.
-6. Run the `image_generator.py` script to generate the images. The generated images will be saved in the `photo-game-backend/images` directory.
-7. Start the API server by running `uvicorn main:app` from the project directory.
+3. Install the required dependencies using `pip install -r requirements.txt` (best to install torch first from https://pytorch.org/ to make sure that the downloaded version supports cuda).
+4. Install the required Node.js packages by running `npm install` from the project directory.
+5. Add your OpaenAI API key to enviromental variable named 'OPENAI_API_KEY'.
+6. Start the application by running `npm start` from the project directory. The website should open automatically in your default browser. If it doesn't, you can manually access it at `http://localhost:3000`.
+7. Run the `image_generator.py` script to generate the images. The generated images will be saved in the `photo-game-backend/images` directory. First run might take time, because model needs to download. We recommend using GPU with CUDA and at least 4GB VRAM (tested on GPUs with 6GB VRAM only).
+8. Start the API server by running `uvicorn main:app` from the project directory.
+
+The app is also available on [dockerhub](https://hub.docker.com/r/stormydata/io-agh-2023) although docker with gpu support is required
 
 ## Usage
 
