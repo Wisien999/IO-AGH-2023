@@ -21,3 +21,12 @@ There is implemnted perma death mode which takes you to next round each time you
 ![Menu](demo_images/menu.png)
 ![Parameters](demo_images/parameters.png)
 ![Round](demo_images/round.png)
+
+# Authors
+An amazing team from AGH UST Computer Science students:
+- [Mateusz Wejman](https://github.com/magdemajt)
+- [Weronika Witek](https://github.com/wjwitek)
+- [Bartłomiej Wiśniewski](https://github.com/Wisien999)
+- [Bogusław Błachut](https://github.com/bblachut)
+- [Jakub Sordyl](https://github.com/Mapet13)
+- [Tobiasz Szulc](https://github.com/StormyData)
