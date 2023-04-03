@@ -8,9 +8,10 @@ To use the application, follow these steps:
 1. Clone the repository to your local machine using `git clone https://github.com/username/projectname.git`.
 2. Install Node.js on your machine. You can download it from the official website: https://nodejs.org/en/.
 3. Install the required Node.js packages by running `npm install` from the project directory.
-4. Start the application by running `npm start` from the project directory. The website should open automatically in your default browser. If it doesn't, you can manually access it at `http://localhost:3000`.
-5. Run the `image_generator.py` script to generate the images. The generated images will be saved in the `photo-game-backend/images` directory.
-6. Start the API server by running `uvicorn main:app` from the project directory.
+4. Add your OpaenAI API key to enviromental variable named 'OPENAI_API_KEY'.
+5. Start the application by running `npm start` from the project directory. The website should open automatically in your default browser. If it doesn't, you can manually access it at `http://localhost:3000`.
+6. Run the `image_generator.py` script to generate the images. The generated images will be saved in the `photo-game-backend/images` directory.
+7. Start the API server by running `uvicorn main:app` from the project directory.
 
 ## Usage
 
