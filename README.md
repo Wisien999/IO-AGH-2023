@@ -34,3 +34,6 @@ An amazing team from AGH UST Computer Science students:
 - [Bogusław Błachut](https://github.com/bblachut)
 - [Jakub Sordyl](https://github.com/Mapet13)
 - [Tobiasz Szulc](https://github.com/StormyData)
+
+# Retro summary
+Summary in Polish can be found [here](https://github.com/Wisien999/IO-AGH-2023/blob/main/Podsumowanie%20Retro.docx)
